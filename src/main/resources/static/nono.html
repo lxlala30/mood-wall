@@ -29,18 +29,53 @@
             margin-bottom: 50px;
         }
 
-        .avatar {
+        /* ========== 核心修改：头像容器样式 ========== */
+        .avatar-container {
+            position: relative;
             width: 110px;
             height: 110px;
-            background: #0071e3;
-            border-radius: 50%;
             margin: 0 auto 20px;
+            cursor: pointer; /* 点击可上传 */
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            object-fit: cover; /* 关键：保持图片比例，裁剪多余部分 */
+            background: #0071e3; /* 兜底背景色 */
+            display: block; /* 消除图片底部间隙 */
+        }
+
+        /* 悬停遮罩：显示相机图标提示 */
+        .avatar-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 36px;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+
+        .avatar-container:hover .avatar-mask {
+            opacity: 1;
+        }
+
+        /* 隐藏文件选择器 */
+        #avatar-input {
+            display: none;
+        }
+        /* ========== 头像样式结束 ========== */
 
         .name {
             font-size: 32px;
@@ -84,11 +119,10 @@
             border: 1px solid #ddd;
             border-radius: 20px;
             font-size: 14px;
-            cursor: pointer; /* 新增：鼠标手型提示可点击 */
-            transition: all 0.2s; /* 新增：过渡动画 */
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        /* 新增：可点击标签悬浮效果 */
         .tag-clickable:hover {
             background: #0071e3;
             color: white;
@@ -107,7 +141,7 @@
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.2s;
-            cursor: pointer; /* 新增：作品卡片可点击 */
+            cursor: pointer;
         }
 
         .card:hover {
@@ -147,7 +181,17 @@
 <body>
 <div class="container">
     <div class="header">
-        <div class="avatar">布</div>
+        <!-- ========== 核心修改：头像区域 HTML 结构 ========== -->
+        <div class="avatar-container" title="点击更换头像">
+            <!-- 替换 src 为你的初始头像图片地址（本地/网络均可） -->
+            <img id="avatar-img" class="avatar" src="https://picsum.photos/200/200?random=1" alt="个人头像">
+            <!-- 悬停遮罩 -->
+            <div class="avatar-mask">📷</div>
+            <!-- 隐藏的文件上传控件 -->
+            <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/jpg,image/gif">
+        </div>
+        <!-- ========== 头像区域结束 ========== -->
+
         <div class="name">一二</div>
         <div class="title">Java 后端工程师 | 全栈爱好者</div>
         <div class="bio">
@@ -155,7 +199,7 @@
         </div>
     </div>
 
-    <!-- 新增：功能入口区域 -->
+    <!-- 快速入口区域 -->
     <div class="section">
         <div class="section-title">快速入口</div>
         <div class="skills">
@@ -164,6 +208,7 @@
         </div>
     </div>
 
+    <!-- 技能栈区域 -->
     <div class="section">
         <div class="section-title">技能栈</div>
         <div class="skills">
@@ -177,10 +222,10 @@
         </div>
     </div>
 
+    <!-- 作品区域 -->
     <div class="section">
         <div class="section-title">我的作品</div>
         <div class="projects">
-            <!-- 新增：作品卡片点击跳转 -->
             <div class="card" id="codekit-card">
                 <div class="card-body">
                     <div class="card-title">CodeKit</div>
@@ -208,33 +253,105 @@
     </div>
 
     <div class="footer">
-        © 2026 布布 | 用代码创造价值
+        © 2026 NoNo哥 | 用代码创造价值
     </div>
 </div>
 
 <script>
-    // 定义跳转地址
-    const NOTE_URL = 'http://118.25.94.106:8082/note.html';
-    const TOOL_URL = 'http://118.25.94.106:8082/index.html';
-    const NONO_URL = 'http://118.25.94.106:8082/index.html';
+    let base = 'http://118.25.94.106:8082'
+// ========== 新增：头像上传核心逻辑 ==========
+    const avatarContainer = document.querySelector('.avatar-container');
+    const avatarImg = document.getElementById('avatar-img');
+    const avatarInput = document.getElementById('avatar-input');
 
-    // 1. 工具箱标签点击跳转
+    // 1. 点击头像容器，触发文件选择框
+    avatarContainer.addEventListener('click', () => {
+        avatarInput.click();
+    });
+
+    // 2. 选择文件后处理头像预览
+    avatarInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 校验文件格式
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            alert('请上传 JPG/PNG/GIF 格式的图片！');
+            return;
+        }
+
+        // 校验文件大小（限制 2MB 以内）
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+            alert('头像图片不能超过 2MB！');
+            return;
+        }
+
+        // 本地预览：将文件转为 Base64 格式
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            avatarImg.src = event.target.result; // 实时更新头像
+        };
+        reader.readAsDataURL(file);
+
+        // ========== 后端对接预留（可选） ==========
+        // 若需要上传到服务器，可在这里添加 FormData 上传逻辑
+        uploadImage(file);
+        // const formData = new FormData();
+        // formData.append('avatar', file);
+        // fetch('你的后端上传接口地址', {
+        //     method: 'POST',
+        //     body: formData
+        // }).then(res => res.json()).then(data => {
+        //     console.log('头像上传成功：', data);
+        //     // 可将后端返回的图片地址保存到数据库/本地存储
+        // });
+    });
+
+    // 上传图片到后端
+    async function uploadImage(file) {
+        if (!file) return ""; // 无图片则返回空
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await fetch(base + "/api/note/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                return data.imageUrl; // 返回图片URL
+            } else {
+                alert("图片上传失败：" + data.message);
+                return "";
+            }
+        } catch (e) {
+            alert("图片上传异常：" + e.message);
+            return "";
+        }
+    }
+
+    // ========== 原有：页面跳转逻辑（完全保留） ==========
+    const NOTE_URL = base + '/note.html';
+    const TOOL_URL = base + '/index.html';
+    const NONO_URL = base +'/index.html';
+
+    // 工具箱标签跳转
     const toolboxTag = document.getElementById('toolbox-tag');
     toolboxTag.addEventListener('click', function() {
-        // 方式1：在当前窗口跳转
-        // window.location.href = TOOL_URL;
-        // 方式2：新开窗口跳转（如需新开窗口，注释上面一行，启用下面一行）
         window.open(TOOL_URL, '_blank');
     });
 
-    // 2. 表情打卡墙标签点击跳转
+    // 表情打卡墙标签跳转
     const emojiTag = document.getElementById('emoji-tag');
     emojiTag.addEventListener('click', function() {
         window.location.href = NOTE_URL;
-        // 如需新开窗口：window.open(TARGET_URL, '_blank');
     });
 
-    // 可选：作品卡片关联跳转（CodeKit跳工具箱，MoodWall跳表情墙）
+    // 作品卡片跳转
     const codekitCard = document.getElementById('codekit-card');
     const moodwallCard = document.getElementById('moodwall-card');
     const nonoCard = document.getElementById('nono-card');
@@ -244,11 +361,10 @@
     });
 
     codekitCard.addEventListener('click', function() {
-        window.location.href = TOOL_URL; // 工具箱地址
+        window.location.href = TOOL_URL;
     });
 
     moodwallCard.addEventListener('click', function() {
-        // window.location.href = NOTE_URL; // 表情打卡墙地址
         window.open(NOTE_URL, '_blank');
     });
 </script>
