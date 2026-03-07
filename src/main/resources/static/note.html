@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MoodWall | 心情便签墙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f7f8fc;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 新增：头部布局容器，适配地址配置 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .title {
+            font-size: 32px;
+            color: #2d3436;
+            text-align: center;
+            flex: 1;
+        }
+
+        /* 新增：接口地址配置样式（适配页面风格） */
+        .api-config {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        #apiBaseUrl {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #2d3436;
+            width: 280px;
+            font-size: 14px;
+        }
+
+        #saveApiUrl {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: #74b9ff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .input-box {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+        }
+
+        .color-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color.active {
+            border-color: #333;
+        }
+
+        button {
+            padding: 12px;
+            background: #74b9ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .wall {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .note {
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .note p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #2d3436;
+            word-break: break-word;
+        }
+
+        .note .time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        /* 新增：删除按钮样式 */
+        .note .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.15);
+            color: white;
+            font-size: 14px;
+            line-height: 20px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .note:hover .delete-btn {
+            opacity: 1; /* 鼠标悬浮时显示删除按钮 */
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <!-- 改造：新增header容器，包含标题和地址配置 -->
+    <div class="header">
+        <h1 class="title">OneTwo · 心情打卡墙 · v-2026_1.1</h1>
+        <!-- 新增：接口地址配置区域 -->
+        <div class="api-config">
+            <input type="text" id="apiBaseUrl" placeholder="请输入后台接口地址，如：http://localhost:8082/api/note">
+            <button id="saveApiUrl">保存地址</button>
+        </div>
+    </div>
+
+    <div class="input-box">
+        <textarea id="content" placeholder="写下你的心情..."></textarea>
+        <div class="color-row">
+            <div class="color active" style="background:#ffeaa7" data-c="#ffeaa7"></div>
+            <div class="color" style="background:#fab1a0" data-c="#fab1a0"></div>
+            <div class="color" style="background:#ff7675" data-c="#ff7675"></div>
+            <div class="color" style="background:#fd79a8" data-c="#fd79a8"></div>
+            <div class="color" style="background:#a29bfe" data-c="#a29bfe"></div>
+            <div class="color" style="background:#74b9ff" data-c="#74b9ff"></div>
+        </div>
+        <button onclick="sendNote()">发布心情</button>
+    </div>
+
+    <div class="wall" id="wall"></div>
+</div>
+
+<script>
+    // 改造：全局接口地址，优先从本地存储读取，默认值备用
+    let apiBaseUrl = localStorage.getItem('moodWallApiUrl') || "http://localhost:8082/api/note";
+    let selectedColor = "#ffeaa7";
+
+    // 页面加载时初始化输入框值
+    window.onload = function() {
+        document.getElementById('apiBaseUrl').value = apiBaseUrl;
+        loadNotes(); // 确保地址初始化后再加载数据
+    }
+
+    // 新增：保存接口地址的逻辑（独立key，避免和其他页面冲突）
+    document.getElementById('saveApiUrl').addEventListener('click', function() {
+        const newUrl = document.getElementById('apiBaseUrl').value.trim();
+        if (!newUrl) {
+            alert('请输入有效的后台接口地址！');
+            return;
+        }
+        // 更新全局变量 + 本地存储（持久化，独立key区分不同页面）
+        apiBaseUrl = newUrl;
+        localStorage.setItem('moodWallApiUrl', apiBaseUrl);
+        alert('后台地址保存成功！已自动重新加载数据');
+        // 保存后重新加载便签数据
+        loadNotes();
+    });
+
+    document.querySelectorAll('.color').forEach(el => {
+        el.onclick = () => {
+            document.querySelectorAll('.color').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            selectedColor = el.dataset.c;
+        }
+    });
+
+    // 改造：使用全局apiBaseUrl发起请求，增加错误处理
+    async function loadNotes() {
+        try {
+            const res = await fetch(apiBaseUrl + "/list");
+            if (!res.ok) {
+                throw new Error(`接口请求失败：${res.status} ${res.statusText}`);
+            }
+            const list = await res.json();
+            const wall = document.getElementById("wall");
+            wall.innerHTML = "";
+            list.forEach(n => {
+                const div = document.createElement("div");
+                div.className = "note";
+                div.style.background = n.color;
+                // 新增：删除按钮，并将便签ID存入data-id
+                div.innerHTML = `
+              <span class="delete-btn" data-id="${n.id}">×</span>
+              <p>${n.content}</p>
+              <div class="time">${n.createTime}</div>
+            `;
+                wall.appendChild(div);
+            });
+
+            // 新增：为所有删除按钮绑定点击事件
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.stopPropagation(); // 阻止冒泡
+                    const noteId = this.dataset.id;
+                    if (!confirm('确定要删除这条心情吗？')) return;
+
+                    try {
+                        const res = await fetch(apiBaseUrl + "/delete/" + noteId, {
+                            method: "DELETE"
+                        });
+                        if (!res.ok) {
+                            throw new Error(`删除失败：${res.status} ${res.statusText}`);
+                        }
+                        // 删除成功后刷新列表
+                        loadNotes();
+                    } catch (e) {
+                        alert(`删除失败：${e.message}\n请检查接口地址是否正确`);
+                        console.error('删除失败：', e);
+                    }
+                });
+            });
+
+        } catch (e) {
+            alert(`加载便签失败：${e.message}\n请检查接口地址是否正确`);
+            console.error('加载失败：', e);
+        }
+    }
+
+    // 改造：使用全局apiBaseUrl发起请求，增加错误处理
+    async function sendNote() {
+        const content = document.getElementById("content").value.trim();
+        if (!content) return alert("请输入内容");
+
+        try {
+            const res = await fetch(apiBaseUrl + "/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, color: selectedColor })
+            });
+            if (!res.ok) {
+                throw new Error(`发布失败：${res.status} ${res.statusText}`);
+            }
+            document.getElementById("content").value = "";
+            loadNotes();
+        } catch (e) {
+            alert(`发布心情失败：${e.message}\n请检查接口地址是否正确`);
+            console.error('发布失败：', e);
+        }
+    }
+</script>
+</body>
+</html>
