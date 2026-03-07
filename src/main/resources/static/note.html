@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>MoodWall | 心情便签墙</title>
+    <title>MoodWall | 心情打卡墙</title>
     <style>
         * {
             margin: 0;
@@ -22,52 +22,58 @@
             margin: 0 auto;
         }
 
-        /* 新增：头部布局容器，适配地址配置 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
         .title {
             font-size: 32px;
             color: #2d3436;
+            margin-bottom: 20px;
             text-align: center;
-            flex: 1;
         }
 
-        /* 新增：接口地址配置样式（适配页面风格） */
+        /* 右上角API配置样式 - 新增地址名称输入框 */
         .api-config {
             display: flex;
+            justify-content: flex-end;
             align-items: center;
             gap: 8px;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
-        #apiBaseUrl {
+        .api-config .server-name-input {
             padding: 8px 12px;
-            border-radius: 6px;
             border: 1px solid #ddd;
-            background: white;
-            color: #2d3436;
-            width: 280px;
-            font-size: 14px;
-        }
-
-        #saveApiUrl {
-            padding: 8px 12px;
             border-radius: 6px;
-            border: none;
+            font-size: 14px;
+            width: 150px;
+        }
+        .api-config .server-url-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 250px;
+        }
+        .api-config select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        .api-config button {
+            padding: 8px 16px;
             background: #74b9ff;
             color: white;
-            cursor: pointer;
+            border: none;
+            border-radius: 6px;
             font-size: 14px;
+            cursor: pointer;
+        }
+        /* 新增删除地址按钮样式 */
+        .api-config .delete-server-btn {
+            background: #ff7675;
+        }
+        .api-config .edit-server-btn {
+            background: #fd79a8;
         }
 
         .input-box {
@@ -89,6 +95,31 @@
             border-radius: 8px;
             font-size: 16px;
             resize: none;
+        }
+
+        /* 图片上传区域样式 */
+        .upload-area {
+            margin: 8px 0;
+        }
+        .upload-area button {
+            padding: 8px 12px;
+            background: #a29bfe;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .upload-area #imageTip {
+            color: #666;
+            font-size: 14px;
+        }
+        .upload-area #previewImage {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 8px;
+            border-radius: 8px;
+            display: none;
         }
 
         .color-row {
@@ -118,6 +149,61 @@
             cursor: pointer;
         }
 
+        /* 顶部信息栏 */
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* IP弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #2d3436;
+        }
+        #ipList {
+            margin-bottom: 16px;
+            line-height: 1.6;
+            color: #666;
+        }
+        .modal-content button {
+            width: 100%;
+        }
+
         .wall {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -137,6 +223,21 @@
             line-height: 1.5;
             color: #2d3436;
             word-break: break-word;
+            margin-bottom: 20px; /* 给点赞按钮留出空间 */
+        }
+
+        /* 便签图片样式 */
+        .note img {
+            max-width: 80px;    /* 进一步缩小最大宽度 */
+            max-height: 80px;   /* 进一步缩小最大高度 */
+            border-radius: 6px;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            object-fit: cover;  /* 保持比例裁剪，避免变形 */
+        }
+        .note img:hover {
+            transform: scale(1.08);
         }
 
         .note .time {
@@ -146,7 +247,7 @@
             text-align: right;
         }
 
-        /* 新增：删除按钮样式 */
+        /* 删除按钮样式 */
         .note .delete-btn {
             position: absolute;
             top: 8px;
@@ -167,6 +268,116 @@
             opacity: 1; /* 鼠标悬浮时显示删除按钮 */
         }
 
+        /* 点赞按钮 */
+        .note .like-btn {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .note .like-btn:hover {
+            opacity: 1;
+        }
+        .note .like-btn .heart {
+            color: #ff6b6b;
+        }
+
+        /* 表情按钮样式 */
+        #emojiBtn {
+            background: #fd79a8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        /* Emoji 面板样式 - 适配8列6行 */
+        #emojiPanel {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 500px;
+            height: 400px; /* 固定高度为400px */
+            overflow-y: auto; /* 超出部分显示滚动条 */
+        }
+
+        /* 单个表情项 */
+        .emoji-item {
+            font-size: 20px;
+            text-align: center;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .emoji-item:hover {
+            background: #f0f0f0;
+        }
+
+        /* 图片预览弹窗样式 */
+        #imageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* 加深背景，更聚焦图片 */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* 确保在最上层 */
+            overflow: hidden; /* 禁止弹窗本身出现滚动条 */
+        }
+
+        #imageModal .modal-content {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            text-align: center;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #fullImage {
+            max-width: 90vw;  /* 限制图片最大宽度为视口宽度的90% */
+            max-height: 90vh; /* 限制图片最大高度为视口高度的90% */
+            object-fit: contain; /* 保持比例，完整显示图片 */
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        #imageModal button {
+            margin-top: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #imageModal button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-6px); }
@@ -177,18 +388,105 @@
 
 <body>
 <div class="container">
-    <!-- 改造：新增header容器，包含标题和地址配置 -->
-    <div class="header">
-        <h1 class="title">OneTwo · 心情打卡墙 · v-2026_1.1</h1>
-        <!-- 新增：接口地址配置区域 -->
-        <div class="api-config">
-            <input type="text" id="apiBaseUrl" placeholder="请输入后台接口地址，如：http://localhost:8082/api/note">
-            <button id="saveApiUrl">保存地址</button>
+    <h1 class="title">OneTwo · 心情打卡墙 · v-2026_1.1</h1>
+
+    <!-- 右上角API配置 - 新增地址名称输入框 -->
+    <div class="api-config">
+        <input type="text" id="serverNameInput" class="server-name-input"  style="display: none;" placeholder="地址名称">
+        <input type="text" id="serverUrlInput" class="server-url-input" placeholder="API地址">
+        <select id="serverSelect">
+            <option value="http://118.25.94.106:8082/api/note">服务器地址</option>
+            <option value="http://localhost:8082/api/note">调试地址</option>
+        </select>
+        <button onclick="saveServer()">保存地址</button>
+        <button class="edit-server-btn" onclick="editSelectedServer()">修改名称</button>
+        <button class="delete-server-btn" onclick="deleteSelectedServer()">删除地址</button>
+    </div>
+
+    <!-- 图片预览弹窗（默认隐藏） -->
+    <div id="imageModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <img id="fullImage" alt="原图">
+            <button onclick="closeImageModal()">关闭</button>
         </div>
     </div>
 
     <div class="input-box">
-        <textarea id="content" placeholder="写下你的心情..."></textarea>
+        <textarea id="content" placeholder="写下你的心情...（支持Emoji😜）"></textarea>
+
+        <div class="upload-area">
+            <!-- 表情选择按钮 -->
+            <button type="button" id="emojiBtn" style="padding: 8px 12px; background: #fd79a8; margin-right: 8px;">😊 表情</button>
+            <!-- 扩展版Emoji面板（8列6行共48个表情） -->
+            <div id="emojiPanel" style="display: none; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 8px; grid-template-columns: repeat(8, 1fr); gap: 8px;">
+                <!-- 第一行：常用心情 -->
+                <span class="emoji-item" data-emoji="😊">😊</span>
+                <span class="emoji-item" data-emoji="😂">😂</span>
+                <span class="emoji-item" data-emoji="😍">😍</span>
+                <span class="emoji-item" data-emoji="😜">😜</span>
+                <span class="emoji-item" data-emoji="😎">😎</span>
+                <span class="emoji-item" data-emoji="😢">😢</span>
+                <span class="emoji-item" data-emoji="😡">😡</span>
+                <span class="emoji-item" data-emoji="😱">😱</span>
+
+                <!-- 第二行：情感表达 -->
+                <span class="emoji-item" data-emoji="👍">👍</span>
+                <span class="emoji-item" data-emoji="❤️">❤️</span>
+                <span class="emoji-item" data-emoji="💔">💔</span>
+                <span class="emoji-item" data-emoji="🎉">🎉</span>
+                <span class="emoji-item" data-emoji="✨">✨</span>
+                <span class="emoji-item" data-emoji="🔥">🔥</span>
+                <span class="emoji-item" data-emoji="💯">💯</span>
+                <span class="emoji-item" data-emoji="💪">💪</span>
+
+                <!-- 第三行：物品/食物 -->
+                <span class="emoji-item" data-emoji="🍉">🍉</span>
+                <span class="emoji-item" data-emoji="🍔">🍔</span>
+                <span class="emoji-item" data-emoji="🍟">🍟</span>
+                <span class="emoji-item" data-emoji="🍕">🍕</span>
+                <span class="emoji-item" data-emoji="🥤">🥤</span>
+                <span class="emoji-item" data-emoji="🎂">🎂</span>
+                <span class="emoji-item" data-emoji="🍰">🍰</span>
+                <span class="emoji-item" data-emoji="🍩">🍩</span>
+
+                <!-- 第四行：动物 -->
+                <span class="emoji-item" data-emoji="🐱">🐱</span>
+                <span class="emoji-item" data-emoji="🐶">🐶</span>
+                <span class="emoji-item" data-emoji="🐭">🐭</span>
+                <span class="emoji-item" data-emoji="🐹">🐹</span>
+                <span class="emoji-item" data-emoji="🐰">🐰</span>
+                <span class="emoji-item" data-emoji="🦊">🦊</span>
+                <span class="emoji-item" data-emoji="🐻">🐻</span>
+                <span class="emoji-item" data-emoji="🐼">🐼</span>
+
+                <!-- 第五行：交通工具/符号 -->
+                <span class="emoji-item" data-emoji="🚀">🚀</span>
+                <span class="emoji-item" data-emoji="🚗">🚗</span>
+                <span class="emoji-item" data-emoji="✈️">✈️</span>
+                <span class="emoji-item" data-emoji="⚽">⚽</span>
+                <span class="emoji-item" data-emoji="🎮">🎮</span>
+                <span class="emoji-item" data-emoji="📱">📱</span>
+                <span class="emoji-item" data-emoji="💡">💡</span>
+                <span class="emoji-item" data-emoji="🔔">🔔</span>
+
+                <!-- 第六行：节日/装饰 -->
+                <span class="emoji-item" data-emoji="🎁">🎁</span>
+                <span class="emoji-item" data-emoji="🎈">🎈</span>
+                <span class="emoji-item" data-emoji="🎊">🎊</span>
+                <span class="emoji-item" data-emoji="🎋">🎋</span>
+                <span class="emoji-item" data-emoji="🌸">🌸</span>
+                <span class="emoji-item" data-emoji="🌺">🌺</span>
+                <span class="emoji-item" data-emoji="🌈">🌈</span>
+                <span class="emoji-item" data-emoji="⭐">⭐</span>
+            </div>
+
+            <!-- 原有图片选择按钮 -->
+            <input type="file" id="imageFile" accept="image/png,image/jpg,image/jpeg,image/gif" hidden>
+            <button type="button" onclick="document.getElementById('imageFile').click()">📷 选择图片</button>
+            <span id="imageTip">未选择图片</span>
+            <img id="previewImage" alt="预览图">
+        </div>
+
         <div class="color-row">
             <div class="color active" style="background:#ffeaa7" data-c="#ffeaa7"></div>
             <div class="color" style="background:#fab1a0" data-c="#fab1a0"></div>
@@ -200,86 +498,478 @@
         <button onclick="sendNote()">发布心情</button>
     </div>
 
+    <!-- 顶部信息栏 -->
+    <div class="info-bar">
+        <div class="info-item">
+            <span>🕒 :</span>
+            <span id="currentTime">--:--:--</span>
+        </div>
+        <div class="info-item" id="onlineCount" title="点击查看在线IP">
+            <span>👥 :</span>
+            <span id="onlineNum">--</span> 人
+        </div>
+    </div>
+
+    <!-- IP弹窗（默认隐藏） -->
+    <div id="ipModal" class="modal">
+        <div class="modal-content">
+            <h3>在线用户IP信息</h3>
+            <div id="ipList"></div>
+            <button onclick="closeModal()">关闭</button>
+        </div>
+    </div>
+
     <div class="wall" id="wall"></div>
 </div>
 
 <script>
-    // 改造：全局接口地址，优先从本地存储读取，默认值备用
-    let apiBaseUrl = localStorage.getItem('moodWallApiUrl') || "http://localhost:8082/api/note";
-    let selectedColor = "#ffeaa7";
+    // ========== 地址管理核心逻辑（支持名称自定义/修改） ==========
+    // 默认地址列表
+    const DEFAULT_SERVERS = [
+        { name: "服务器地址", url: "http://118.25.94.106:8082/api/note" },
+        { name: "调试地址", url: "http://localhost:8082/api/note" }
+    ];
 
-    // 页面加载时初始化输入框值
-    window.onload = function() {
-        document.getElementById('apiBaseUrl').value = apiBaseUrl;
-        loadNotes(); // 确保地址初始化后再加载数据
+    // 从localStorage读取地址列表，没有则用默认值
+    function getServerList() {
+        const saved = localStorage.getItem('moodwall_servers');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        // 首次使用，初始化默认地址列表
+        localStorage.setItem('moodwall_servers', JSON.stringify(DEFAULT_SERVERS));
+        return DEFAULT_SERVERS;
     }
 
-    // 新增：保存接口地址的逻辑（独立key，避免和其他页面冲突）
-    document.getElementById('saveApiUrl').addEventListener('click', function() {
-        const newUrl = document.getElementById('apiBaseUrl').value.trim();
-        if (!newUrl) {
-            alert('请输入有效的后台接口地址！');
+    // 保存地址列表到localStorage
+    function saveServerList(list) {
+        localStorage.setItem('moodwall_servers', JSON.stringify(list));
+    }
+
+    // 获取当前选中的地址
+    function getBaseUrl() {
+        const savedUrl = localStorage.getItem('moodwall_api_url');
+        const serverList = getServerList();
+        // 如果保存的地址不在列表中，使用第一个默认地址
+        if (savedUrl && serverList.some(s => s.url === savedUrl)) {
+            return savedUrl;
+        }
+        return serverList[0].url;
+    }
+
+    // 保存当前选中的地址
+    function setCurrentUrl(url) {
+        localStorage.setItem('moodwall_api_url', url);
+    }
+
+    // 保存/新增地址（支持自定义名称）
+    function saveServer() {
+        const nameInput = document.getElementById('serverNameInput');
+        const urlInput = document.getElementById('serverUrlInput');
+
+        const name = nameInput.value.trim();
+        const url = urlInput.value.trim();
+
+        if (!name) return alert('请输入地址名称');
+        if (!url) return alert('请输入API地址');
+
+        // 验证URL格式
+        try {
+            new URL(url);
+        } catch (e) {
+            return alert('请输入有效的URL地址（如：http://xxx:8082/api/note）');
+        }
+
+        const serverList = getServerList();
+        // 检查是否已存在
+        const index = serverList.findIndex(s => s.url === url);
+        if (index >= 0) {
+            // 更新名称
+            serverList[index].name = name;
+            alert('地址名称已更新');
+        } else {
+            // 新增地址
+            serverList.push({ name, url });
+            alert('地址已新增');
+        }
+
+        // 保存列表并设置为当前地址
+        saveServerList(serverList);
+        setCurrentUrl(url);
+        base = url;
+
+        // 清空输入框并重新初始化下拉框
+        nameInput.value = '';
+        urlInput.value = '';
+        initApiConfig();
+
+        // 立即刷新数据
+        loadNotes();
+        updateOnlineInfo();
+    }
+
+    // 修改选中地址的名称
+    function editSelectedServer() {
+        const select = document.getElementById('serverSelect');
+        const selectedUrl = select.value;
+        if (!selectedUrl) return alert('请先选择要修改的地址');
+
+        // 不允许修改默认地址（可选）
+        const isDefault = DEFAULT_SERVERS.some(s => s.url === selectedUrl);
+        if (isDefault) {
+            return alert('默认地址名称不允许修改');
+        }
+
+        const serverList = getServerList();
+        const server = serverList.find(s => s.url === selectedUrl);
+        if (!server) return alert('未找到该地址');
+
+        const newName = prompt('请输入新的地址名称', server.name);
+        if (!newName || newName.trim() === '') return;
+
+        // 更新名称
+        server.name = newName.trim();
+        saveServerList(serverList);
+
+        // 重新初始化下拉框
+        initApiConfig();
+        alert('地址名称已修改');
+    }
+
+    // 删除选中的地址
+    function deleteSelectedServer() {
+        const select = document.getElementById('serverSelect');
+        const selectedUrl = select.value;
+        if (!selectedUrl) return alert('请先选择要删除的地址');
+
+        // 不允许删除最后一个地址
+        const serverList = getServerList();
+        if (serverList.length <= 1) {
+            return alert('至少保留一个地址，无法删除');
+        }
+
+        // 不允许删除默认地址
+        const isDefault = DEFAULT_SERVERS.some(s => s.url === selectedUrl);
+        if (isDefault) {
+            return alert('默认地址不允许删除');
+        }
+
+        if (!confirm(`确定要删除地址：${selectedUrl} 吗？`)) return;
+
+        // 过滤掉要删除的地址
+        const newList = serverList.filter(s => s.url !== selectedUrl);
+        saveServerList(newList);
+
+        // 如果删除的是当前地址，切换到第一个地址
+        if (selectedUrl === base) {
+            setCurrentUrl(newList[0].url);
+            base = newList[0].url;
+        }
+
+        // 重新初始化下拉框
+        initApiConfig();
+        // 刷新数据
+        loadNotes();
+        updateOnlineInfo();
+        alert('地址已删除');
+    }
+
+    // 页面初始化时，同步输入框和下拉框
+    function initApiConfig() {
+        const baseUrl = getBaseUrl();
+        const nameInput = document.getElementById('serverNameInput');
+        const urlInput = document.getElementById('serverUrlInput');
+        const select = document.getElementById('serverSelect');
+
+        // 清空并重新生成下拉选项
+        select.innerHTML = '';
+        const serverList = getServerList();
+        serverList.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s.url;
+            option.textContent = s.name;
+            select.appendChild(option);
+        });
+
+        // 同步当前地址
+        urlInput.value = baseUrl;
+        select.value = baseUrl;
+
+        // 填充当前地址的名称
+        const currentServer = serverList.find(s => s.url === baseUrl);
+        if (currentServer) {
+            nameInput.value = currentServer.name;
+        }
+
+        // 下拉框改变时，同步输入框并切换地址
+        select.addEventListener('change', () => {
+            const url = select.value;
+            urlInput.value = url;
+
+            // 填充对应名称
+            const server = serverList.find(s => s.url === url);
+            if (server) {
+                nameInput.value = server.name;
+            }
+
+            setCurrentUrl(url);
+            base = url;
+            // 立即刷新数据
+            loadNotes();
+            updateOnlineInfo();
+        });
+    }
+
+    // ========== 全局变量 ==========
+    let base = getBaseUrl();
+    let selectedColor = "#ffeaa7";
+    // 图片相关变量
+    let selectedImageFile = null;
+    let selectedImageUrl = "";
+
+    // ========== Emoji面板扩展逻辑 ==========
+    // 切换 Emoji 面板显示/隐藏
+    document.getElementById('emojiBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const panel = document.getElementById('emojiPanel');
+        if (panel.style.display === 'none' || panel.style.display === '') {
+            panel.style.display = 'grid';
+        } else {
+            panel.style.display = 'none';
+        }
+    });
+
+    // 点击 Emoji 插入到输入框
+    document.querySelectorAll('.emoji-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const emoji = this.dataset.emoji;
+            const contentInput = document.getElementById('content');
+            // 在光标位置插入 Emoji
+            const start = contentInput.selectionStart;
+            const end = contentInput.selectionEnd;
+            const text = contentInput.value;
+            contentInput.value = text.substring(0, start) + emoji + text.substring(end);
+            // 移动光标到插入后位置
+            contentInput.focus();
+            contentInput.setSelectionRange(start + emoji.length, start + emoji.length);
+            // 插入后隐藏面板
+            document.getElementById('emojiPanel').style.display = 'none';
+        });
+    });
+
+    // 点击页面其他区域关闭 Emoji 面板
+    document.addEventListener('click', function(e) {
+        const emojiBtn = document.getElementById('emojiBtn');
+        const emojiPanel = document.getElementById('emojiPanel');
+        if (!emojiBtn.contains(e.target) && !emojiPanel.contains(e.target)) {
+            emojiPanel.style.display = 'none';
+        }
+    });
+
+    // ========== 图片相关逻辑 ==========
+    // 监听图片选择事件
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) {
+            selectedImageFile = null;
+            selectedImageUrl = "";
+            document.getElementById('imageTip').textContent = "未选择图片";
+            document.getElementById('previewImage').style.display = "none";
             return;
         }
-        // 更新全局变量 + 本地存储（持久化，独立key区分不同页面）
-        apiBaseUrl = newUrl;
-        localStorage.setItem('moodWallApiUrl', apiBaseUrl);
-        alert('后台地址保存成功！已自动重新加载数据');
-        // 保存后重新加载便签数据
-        loadNotes();
+
+        // 预览图片
+        selectedImageFile = file;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            selectedImageUrl = event.target.result;
+            document.getElementById('previewImage').src = selectedImageUrl;
+            document.getElementById('previewImage').style.display = "block";
+            document.getElementById('imageTip').textContent = "已选择：" + file.name;
+        };
+        reader.readAsDataURL(file);
     });
 
-    document.querySelectorAll('.color').forEach(el => {
-        el.onclick = () => {
-            document.querySelectorAll('.color').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            selectedColor = el.dataset.c;
+    // 显示图片预览弹窗
+    function showImageModal(imageUrl) {
+        const fullImage = document.getElementById('fullImage');
+        fullImage.src = imageUrl;
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    // 关闭图片预览弹窗
+    function closeImageModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // 点击弹窗背景关闭预览
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeImageModal();
         }
     });
 
-    // 改造：使用全局apiBaseUrl发起请求，增加错误处理
+    // 上传图片到后端
+    async function uploadImage() {
+        if (!selectedImageFile) return ""; // 无图片则返回空
+
+        const formData = new FormData();
+        formData.append('image', selectedImageFile);
+
+        try {
+            const res = await fetch(base + "/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                return data.imageUrl; // 返回图片URL
+            } else {
+                alert("图片上传失败：" + data.message);
+                return "";
+            }
+        } catch (e) {
+            alert("图片上传异常：" + e.message);
+            return "";
+        }
+    }
+
+    // ========== 时间和在线信息 ==========
+    // 实时时间更新
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('currentTime').textContent = timeStr;
+    }
+
+    // 实时获取在线人数和IP
+    async function updateOnlineInfo() {
+        try {
+            const res = await fetch(base + "/online");
+            if (!res.ok) throw new Error(`获取在线信息失败：${res.status}`);
+
+            const data = await res.json();
+            // 更新在线人数
+            document.getElementById('onlineNum').textContent = data.onlineCount || 0;
+
+            // 构建IP列表时优化显示
+            let ipListHtml = "";
+            if (data.currentIp === "127.0.0.1" || data.currentIp === "0:0:0:0:0:0:0:1") {
+                ipListHtml = `<p>🔹 你的IP：本地访问 (${data.currentIp})</p>`;
+            } else {
+                ipListHtml = `<p>🔹 你的IP：${data.currentIp}</p>`;
+            }
+            ipListHtml += "<p>📝 在线IP列表：</p>";
+            if (data.ipList && data.ipList.length > 0) {
+                data.ipList.forEach((ip, index) => {
+                    if (ip === "127.0.0.1" || ip === "0:0:0:0:0:0:0:1") {
+                        ipListHtml += `<p>${index + 1}. 本地访问 (${ip})</p>`;
+                    } else {
+                        ipListHtml += `<p>${index + 1}. ${ip}</p>`;
+                    }
+                });
+            } else {
+                ipListHtml += "<p>暂无其他在线用户</p>";
+            }
+            // 存储IP列表供弹窗使用
+            window.onlineIpListHtml = ipListHtml;
+        } catch (e) {
+            console.error("更新在线信息失败：", e);
+            document.getElementById('onlineNum').textContent = "未知";
+        }
+    }
+
+    // 显示IP弹窗
+    function showModal() {
+        const ipListEl = document.getElementById('ipList');
+        ipListEl.innerHTML = window.onlineIpListHtml || "<p>暂无在线用户数据</p>";
+        document.getElementById('ipModal').style.display = 'flex';
+    }
+
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('ipModal').style.display = 'none';
+    }
+
+    // ========== 便签核心逻辑 ==========
+    // 加载便签列表
     async function loadNotes() {
         try {
-            const res = await fetch(apiBaseUrl + "/list");
+            const res = await fetch(base + "/list");
             if (!res.ok) {
                 throw new Error(`接口请求失败：${res.status} ${res.statusText}`);
             }
             const list = await res.json();
             const wall = document.getElementById("wall");
             wall.innerHTML = "";
+
             list.forEach(n => {
                 const div = document.createElement("div");
                 div.className = "note";
                 div.style.background = n.color;
-                // 新增：删除按钮，并将便签ID存入data-id
+                // 渲染便签（图片改为可点击的缩略图）
                 div.innerHTML = `
-              <span class="delete-btn" data-id="${n.id}">×</span>
-              <p>${n.content}</p>
-              <div class="time">${n.createTime}</div>
-            `;
+        <span class="delete-btn" data-id="${n.id}">×</span>
+        <p>${n.content || ""}</p>
+        ${n.imageUrl ? `<img src="${n.imageUrl}" class="note-image" data-full-url="${n.imageUrl}" alt="便签图片">` : ""}
+        <div class="time">${n.createTime}</div>
+        <span class="like-btn" data-id="${n.id}">
+            <span class="heart">❤️</span> ${n.likeCount || 0}
+        </span>
+      `;
                 wall.appendChild(div);
             });
 
-            // 新增：为所有删除按钮绑定点击事件
+            // 绑定删除事件
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', async function(e) {
-                    e.stopPropagation(); // 阻止冒泡
+                    e.stopPropagation();
                     const noteId = this.dataset.id;
                     if (!confirm('确定要删除这条心情吗？')) return;
 
                     try {
-                        const res = await fetch(apiBaseUrl + "/delete/" + noteId, {
+                        const res = await fetch(base + "/delete/" + noteId, {
                             method: "DELETE"
                         });
-                        if (!res.ok) {
-                            throw new Error(`删除失败：${res.status} ${res.statusText}`);
-                        }
-                        // 删除成功后刷新列表
+                        if (!res.ok) throw new Error(`删除失败：${res.status} ${res.statusText}`);
                         loadNotes();
                     } catch (e) {
                         alert(`删除失败：${e.message}\n请检查接口地址是否正确`);
                         console.error('删除失败：', e);
                     }
+                });
+            });
+
+            // 绑定点赞事件
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.stopPropagation();
+                    const noteId = this.dataset.id;
+                    try {
+                        const res = await fetch(base + "/like/" + noteId, {
+                            method: "POST"
+                        });
+                        if (!res.ok) throw new Error(`点赞失败：${res.status}`);
+                        loadNotes();
+                    } catch (e) {
+                        alert(`点赞失败：${e.message}`);
+                        console.error('点赞失败：', e);
+                    }
+                });
+            });
+
+            // 绑定图片点击事件
+            document.querySelectorAll('.note-image').forEach(img => {
+                img.addEventListener('click', function() {
+                    const fullUrl = this.dataset.fullUrl;
+                    showImageModal(fullUrl);
                 });
             });
 
@@ -289,27 +979,72 @@
         }
     }
 
-    // 改造：使用全局apiBaseUrl发起请求，增加错误处理
+    // 发布心情
     async function sendNote() {
         const content = document.getElementById("content").value.trim();
-        if (!content) return alert("请输入内容");
+        if (!content && !selectedImageFile) { // 内容和图片至少填一个
+            return alert("请输入心情内容或选择图片");
+        }
 
         try {
-            const res = await fetch(apiBaseUrl + "/add", {
+            // 1. 先上传图片（如果有）
+            const imageUrl = await uploadImage();
+
+            // 2. 发布便签（包含图片URL）
+            const res = await fetch(base + "/add", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content, color: selectedColor })
+                body: JSON.stringify({
+                    content: content || "分享了一张图片", // 无文字时默认描述
+                    color: selectedColor,
+                    imageUrl: imageUrl // 新增图片URL字段
+                })
             });
-            if (!res.ok) {
-                throw new Error(`发布失败：${res.status} ${res.statusText}`);
-            }
-            document.getElementById("content").value = "";
-            loadNotes();
+
+            if (!res.ok) throw new Error(`发布失败：${res.status} ${res.statusText}`);
+
+            // 3. 重置表单
+            document.getElementById('content').value = "";
+            selectedImageFile = null;
+            selectedImageUrl = "";
+            document.getElementById('imageTip').textContent = "未选择图片";
+            document.getElementById('previewImage').style.display = "none";
+
+            loadNotes(); // 重新加载列表
         } catch (e) {
             alert(`发布心情失败：${e.message}\n请检查接口地址是否正确`);
             console.error('发布失败：', e);
         }
     }
+
+    // ========== 页面初始化 ==========
+    window.onload = function() {
+        // 初始化时间
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 初始化地址配置
+        initApiConfig();
+
+        // 初始化在线信息（每5秒更新一次）
+        updateOnlineInfo();
+        setInterval(updateOnlineInfo, 5000);
+
+        // 绑定在线人数点击事件
+        document.getElementById('onlineCount').addEventListener('click', showModal);
+
+        // 颜色选择事件
+        document.querySelectorAll('.color').forEach(el => {
+            el.onclick = () => {
+                document.querySelectorAll('.color').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                selectedColor = el.dataset.c;
+            }
+        });
+
+        // 加载便签列表
+        loadNotes();
+    };
 </script>
 </body>
 </html>

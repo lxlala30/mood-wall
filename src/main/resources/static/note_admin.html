@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>MoodWall | 心情便签墙</title>
+    <title>MoodWall | 心情打卡墙</title>
     <style>
         * {
             margin: 0;
@@ -277,7 +277,7 @@
             margin-right: 8px;
         }
 
-        /* Emoji 面板样式 */
+        /* Emoji 面板样式 - 适配8列6行 */
         #emojiPanel {
             background: white;
             border: 1px solid #e0e0e0;
@@ -288,13 +288,16 @@
             grid-template-columns: repeat(8, 1fr);
             gap: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 500px;
+            height: 300px; /* 固定高度为400px */
+            overflow-y: auto; /* 超出部分显示滚动条 */
         }
 
         /* 单个表情项 */
         .emoji-item {
             font-size: 20px;
             text-align: center;
-            padding: 6px;
+            padding: 4px;
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
@@ -405,6 +408,7 @@
             <button type="button" id="emojiBtn" style="padding: 8px 12px; background: #fd79a8; margin-right: 8px;">😊 表情</button>
             <!-- 隐藏的 Emoji 面板 -->
             <div id="emojiPanel" style="display: none; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 8px; grid-template-columns: repeat(8, 1fr); gap: 8px;">
+                <!-- 第一行：常用心情 -->
                 <span class="emoji-item" data-emoji="😊">😊</span>
                 <span class="emoji-item" data-emoji="😂">😂</span>
                 <span class="emoji-item" data-emoji="😍">😍</span>
@@ -412,15 +416,89 @@
                 <span class="emoji-item" data-emoji="😎">😎</span>
                 <span class="emoji-item" data-emoji="😢">😢</span>
                 <span class="emoji-item" data-emoji="😡">😡</span>
+                <span class="emoji-item" data-emoji="😱">😱</span>
+                <span class="emoji-item" data-emoji="🤣">🤣</span>
+                <span class="emoji-item" data-emoji="🙂">🙂</span>
+                <span class="emoji-item" data-emoji="😉">😉</span>
+                <span class="emoji-item" data-emoji="😌">😌</span>
+                <span class="emoji-item" data-emoji="😍">😍</span>
+                <span class="emoji-item" data-emoji="😘">😘</span>
+                <span class="emoji-item" data-emoji="😗">😗</span>
+                <span class="emoji-item" data-emoji="😙">😙</span>
+                <span class="emoji-item" data-emoji="😯">😯</span>
+                <span class="emoji-item" data-emoji="😝">😝</span>
+                <span class="emoji-item" data-emoji="😛">😛</span>
+                <span class="emoji-item" data-emoji="😎">😎</span>
+                <span class="emoji-item" data-emoji="😇">😇</span>
+                <span class="emoji-item" data-emoji="😐">😐</span>
+                <span class="emoji-item" data-emoji="😑">😑</span>
+                <span class="emoji-item" data-emoji="😶">😶</span>
+                <span class="emoji-item" data-emoji="😳">😳</span>
+                <span class="emoji-item" data-emoji="😵">😵</span>
+                <span class="emoji-item" data-emoji="😱">😱</span>
+                <span class="emoji-item" data-emoji="😖">😖</span>
+                <span class="emoji-item" data-emoji="😣">😣</span>
+                <span class="emoji-item" data-emoji="😢">😢</span>
+                <span class="emoji-item" data-emoji="😥">😥</span>
+                <span class="emoji-item" data-emoji="😰">😰</span>
+                <span class="emoji-item" data-emoji="😨">😨</span>
+                <span class="emoji-item" data-emoji="😩">😩</span>
+                <span class="emoji-item" data-emoji="😫">😫</span>
+                <span class="emoji-item" data-emoji="😤">😤</span>
+                <span class="emoji-item" data-emoji="😡">😡</span>
+                <span class="emoji-item" data-emoji="😠">😠</span>
+                <span class="emoji-item" data-emoji="😈">😈</span>
+                <span class="emoji-item" data-emoji="👿">👿</span>
+
+                <!-- 第二行：情感表达 -->
                 <span class="emoji-item" data-emoji="👍">👍</span>
                 <span class="emoji-item" data-emoji="❤️">❤️</span>
+                <span class="emoji-item" data-emoji="💔">💔</span>
                 <span class="emoji-item" data-emoji="🎉">🎉</span>
                 <span class="emoji-item" data-emoji="✨">✨</span>
                 <span class="emoji-item" data-emoji="🔥">🔥</span>
+                <span class="emoji-item" data-emoji="💯">💯</span>
+                <span class="emoji-item" data-emoji="💪">💪</span>
+
+                <!-- 第三行：物品/食物 -->
                 <span class="emoji-item" data-emoji="🍉">🍉</span>
+                <span class="emoji-item" data-emoji="🍔">🍔</span>
+                <span class="emoji-item" data-emoji="🍟">🍟</span>
+                <span class="emoji-item" data-emoji="🍕">🍕</span>
+                <span class="emoji-item" data-emoji="🥤">🥤</span>
+                <span class="emoji-item" data-emoji="🎂">🎂</span>
+                <span class="emoji-item" data-emoji="🍰">🍰</span>
+                <span class="emoji-item" data-emoji="🍩">🍩</span>
+
+                <!-- 第四行：动物 -->
                 <span class="emoji-item" data-emoji="🐱">🐱</span>
+                <span class="emoji-item" data-emoji="🐶">🐶</span>
+                <span class="emoji-item" data-emoji="🐭">🐭</span>
+                <span class="emoji-item" data-emoji="🐹">🐹</span>
+                <span class="emoji-item" data-emoji="🐰">🐰</span>
+                <span class="emoji-item" data-emoji="🦊">🦊</span>
+                <span class="emoji-item" data-emoji="🐻">🐻</span>
+                <span class="emoji-item" data-emoji="🐼">🐼</span>
+
+                <!-- 第五行：交通工具/符号 -->
                 <span class="emoji-item" data-emoji="🚀">🚀</span>
+                <span class="emoji-item" data-emoji="🚗">🚗</span>
+                <span class="emoji-item" data-emoji="✈️">✈️</span>
+                <span class="emoji-item" data-emoji="⚽">⚽</span>
+                <span class="emoji-item" data-emoji="🎮">🎮</span>
+                <span class="emoji-item" data-emoji="📱">📱</span>
                 <span class="emoji-item" data-emoji="💡">💡</span>
+                <span class="emoji-item" data-emoji="🔔">🔔</span>
+
+                <!-- 第六行：节日/装饰 -->
+                <span class="emoji-item" data-emoji="🎁">🎁</span>
+                <span class="emoji-item" data-emoji="🎈">🎈</span>
+                <span class="emoji-item" data-emoji="🎊">🎊</span>
+                <span class="emoji-item" data-emoji="🎋">🎋</span>
+                <span class="emoji-item" data-emoji="🌸">🌸</span>
+                <span class="emoji-item" data-emoji="🌺">🌺</span>
+                <span class="emoji-item" data-emoji="🌈">🌈</span>
+                <span class="emoji-item" data-emoji="⭐">⭐</span>
             </div>
 
             <!-- 原有图片选择按钮 -->
