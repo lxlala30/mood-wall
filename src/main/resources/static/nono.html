@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" id="nono-card">
                 <div class="card-body">
                     <div class="card-title">个人作品集官网</div>
                     <div class="card-desc">极简高级风个人展示站，响应式设计，适合简历与作品展示。</div>
@@ -216,6 +216,7 @@
     // 定义跳转地址
     const NOTE_URL = 'http://118.25.94.106:8082/note.html';
     const TOOL_URL = 'http://118.25.94.106:8082/index.html';
+    const NONO_URL = 'http://118.25.94.106:8082/index.html';
 
     // 1. 工具箱标签点击跳转
     const toolboxTag = document.getElementById('toolbox-tag');
@@ -236,13 +237,19 @@
     // 可选：作品卡片关联跳转（CodeKit跳工具箱，MoodWall跳表情墙）
     const codekitCard = document.getElementById('codekit-card');
     const moodwallCard = document.getElementById('moodwall-card');
+    const nonoCard = document.getElementById('nono-card');
+
+    nonoCard.addEventListener('click', function() {
+        window.open(NONO_URL, '_blank');
+    });
 
     codekitCard.addEventListener('click', function() {
         window.location.href = TOOL_URL; // 工具箱地址
     });
 
     moodwallCard.addEventListener('click', function() {
-        window.location.href = NOTE_URL; // 表情打卡墙地址
+        // window.location.href = NOTE_URL; // 表情打卡墙地址
+        window.open(NOTE_URL, '_blank');
     });
 </script>
 </body>
