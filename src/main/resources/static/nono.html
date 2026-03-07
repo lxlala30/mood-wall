@@ -259,11 +259,15 @@
 
 <script>
     let base = 'http://118.25.94.106:8082'
-// ========== 新增：头像上传核心逻辑 ==========
+// ========== 新增：初始化头像 头像上传核心逻辑 ==========
     const avatarContainer = document.querySelector('.avatar-container');
     const avatarImg = document.getElementById('avatar-img');
     const avatarInput = document.getElementById('avatar-input');
-
+    // 页面加载时，立即从缓存读取并设置头像
+    avatarImg.src = getImageUrl();
+    function getImageUrl() {
+        return localStorage.getItem('image_url') || "http://118.25.94.106:8082/uploads/a9db6b44-efca-4aeb-a119-50c877103dfb.jpeg" || "https://picsum.photos/200/200?random=1";
+    }
     // 1. 点击头像容器，触发文件选择框
     avatarContainer.addEventListener('click', () => {
         avatarInput.click();
@@ -323,7 +327,9 @@
             });
             const data = await res.json();
             if (data.success) {
-                return data.imageUrl; // 返回图片URL
+                avatarImg.src = data.imageUrl;
+                localStorage.setItem('image_url', data.imageUrl);
+                // return data.imageUrl; // 返回图片URL
             } else {
                 alert("图片上传失败：" + data.message);
                 return "";
