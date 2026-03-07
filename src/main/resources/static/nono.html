@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>布布 | 个人作品集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            background: #0071e3;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+        }
+
+        .name {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .title {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .bio {
+            color: #555;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer; /* 新增：鼠标手型提示可点击 */
+            transition: all 0.2s; /* 新增：过渡动画 */
+        }
+
+        /* 新增：可点击标签悬浮效果 */
+        .tag-clickable:hover {
+            background: #0071e3;
+            color: white;
+            border-color: #0071e3;
+        }
+
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: pointer; /* 新增：作品卡片可点击 */
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-tech {
+            font-size: 12px;
+            color: #0071e3;
+        }
+
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <div class="avatar">布</div>
+        <div class="name">布布</div>
+        <div class="title">Java 后端工程师 | 全栈爱好者</div>
+        <div class="bio">
+            喜欢用代码解决真实问题，从后端接口到前端交互，再到部署上线，享受完整的创造过程。
+        </div>
+    </div>
+
+    <!-- 新增：功能入口区域 -->
+    <div class="section">
+        <div class="section-title">快速入口</div>
+        <div class="skills">
+            <div class="tag tag-clickable" id="toolbox-tag">工具箱</div>
+            <div class="tag tag-clickable" id="emoji-tag">表情打卡墙</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">技能栈</div>
+        <div class="skills">
+            <div class="tag">Java</div>
+            <div class="tag">SpringBoot</div>
+            <div class="tag">MySQL</div>
+            <div class="tag">HTML</div>
+            <div class="tag">CSS</div>
+            <div class="tag">JavaScript</div>
+            <div class="tag">Linux</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">我的作品</div>
+        <div class="projects">
+            <!-- 新增：作品卡片点击跳转 -->
+            <div class="card" id="codekit-card">
+                <div class="card-body">
+                    <div class="card-title">CodeKit</div>
+                    <div class="card-desc">一站式开发者工具箱，支持 JSON 格式化、编解码、加密、时间转换等功能。</div>
+                    <div class="card-tech">SpringBoot + 原生前端</div>
+                </div>
+            </div>
+
+            <div class="card" id="moodwall-card">
+                <div class="card-body">
+                    <div class="card-title">MoodWall 心情打卡墙</div>
+                    <div class="card-desc">治愈系悬浮便签墙，可发布心情、选择颜色、带动画效果。</div>
+                    <div class="card-tech">SpringBoot + 前端动画</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">个人作品集官网</div>
+                    <div class="card-desc">极简高级风个人展示站，响应式设计，适合简历与作品展示。</div>
+                    <div class="card-tech">HTML + CSS + JS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2026 布布 | 用代码创造价值
+    </div>
+</div>
+
+<script>
+    // 定义跳转地址
+    const NOTE_URL = 'http://118.25.94.106:8082/note.html';
+    const TOOL_URL = 'http://118.25.94.106:8082/index.html';
+
+    // 1. 工具箱标签点击跳转
+    const toolboxTag = document.getElementById('toolbox-tag');
+    toolboxTag.addEventListener('click', function() {
+        // 方式1：在当前窗口跳转
+        // window.location.href = TOOL_URL;
+        // 方式2：新开窗口跳转（如需新开窗口，注释上面一行，启用下面一行）
+        window.open(TOOL_URL, '_blank');
+    });
+
+    // 2. 表情打卡墙标签点击跳转
+    const emojiTag = document.getElementById('emoji-tag');
+    emojiTag.addEventListener('click', function() {
+        window.location.href = NOTE_URL;
+        // 如需新开窗口：window.open(TARGET_URL, '_blank');
+    });
+
+    // 可选：作品卡片关联跳转（CodeKit跳工具箱，MoodWall跳表情墙）
+    const codekitCard = document.getElementById('codekit-card');
+    const moodwallCard = document.getElementById('moodwall-card');
+
+    codekitCard.addEventListener('click', function() {
+        window.location.href = TOOL_URL; // 工具箱地址
+    });
+
+    moodwallCard.addEventListener('click', function() {
+        window.location.href = NOTE_URL; // 表情打卡墙地址
+    });
+</script>
+</body>
+</html>
