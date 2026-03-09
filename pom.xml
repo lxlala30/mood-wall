@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>tool</artifactId>
+    <artifactId>mood-wall</artifactId>
     <version>v-1.0</version>
-    <name>ai-tool</name>
+    <name>mood-tool</name>
     <description>Demo project for Spring Boot</description>
     <url/>
     <licenses>
