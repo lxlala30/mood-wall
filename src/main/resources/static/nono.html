@@ -341,9 +341,9 @@
     }
 
     // ========== 原有：页面跳转逻辑（完全保留） ==========
-    const NOTE_URL = base + '/note.html';
+    const NOTE_URL = base + '/note_server.html';
     const TOOL_URL = base + '/index.html';
-    const NONO_URL = base +'/index.html';
+    const NONO_URL = base +'/nono.html';
 
     // 工具箱标签跳转
     const toolboxTag = document.getElementById('toolbox-tag');
@@ -363,7 +363,7 @@
     const nonoCard = document.getElementById('nono-card');
 
     nonoCard.addEventListener('click', function() {
-        window.open(NONO_URL, '_blank');
+        window.location.href = NOTE_URL;
     });
 
     codekitCard.addEventListener('click', function() {
