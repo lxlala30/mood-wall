@@ -13,6 +13,7 @@
             --text-light: #666;
             --border: #ddd;
             --primary: #0071e3;
+            --input-bg: #fff;
             --result-bg: #f9f9f9;
         }
 
@@ -23,6 +24,7 @@
             --text-light: #aaa;
             --border: #444;
             --primary: #3b9aff;
+            --input-bg: #2a2a2a;
             --result-bg: #242424;
         }
 
@@ -40,12 +42,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            /* 新增：适配地址输入框的布局 */
             flex-wrap: wrap;
             gap: 10px;
         }
 
-        /* 新增：地址配置区域样式 */
         .api-config {
             display: flex;
             align-items: center;
@@ -56,12 +56,12 @@
             padding: 8px 12px;
             border-radius: 6px;
             border: 1px solid var(--border);
-            background: var(--card);
+            background: var(--input-bg);
             color: var(--text);
             width: 280px;
         }
 
-        #saveApiUrl {
+        #saveApiUrl, #themeBtn {
             padding: 8px 12px;
             border-radius: 6px;
             border: none;
@@ -72,15 +72,6 @@
 
         h1 {
             color: var(--text);
-        }
-
-        #themeBtn {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: none;
-            background: var(--primary);
-            color: #fff;
-            cursor: pointer;
         }
 
         .tab {
@@ -100,21 +91,25 @@
         .box {
             background: var(--card);
             padding: 20px;
-            height: 400px;
             border-radius: 12px;
             margin-bottom: 20px;
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         textarea {
             width: 100%;
-            height: 400px;
-            padding: 10px;
-            border-radius: 6px;
+            height: 320px;
+            padding: 12px;
+            border-radius: 8px;
             border: 1px solid var(--border);
-            margin: 10px 0;
-            background: var(--card);
+            background: var(--input-bg);
             color: var(--text);
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
         }
 
         button {
@@ -126,20 +121,26 @@
             cursor: pointer;
             margin-right: 6px;
             margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
         }
 
         .result {
-            margin-top: 12px;
-            padding: 10px;
+            padding: 12px;
             background: var(--result-bg);
-            border-radius: 6px;
+            border-radius: 8px;
             white-space: pre-wrap;
             position: relative;
             border: 1px solid var(--border);
-            /*white-space: normal;*/
-            word-wrap: break-word; /* 兼容旧浏览器 */
-            overflow-wrap: break-word; /* 标准属性，打断长单词 */
-            max-width: 100%; /* 避免溢出父容器 */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            min-height: 60px;
+            font-family: monospace;
+            font-size: 14px;
         }
 
         .copy-btn {
@@ -156,7 +157,6 @@
 
 <div class="header">
     <h1>开发者工具箱</h1>
-    <!-- 新增：后台地址配置区域 -->
     <div class="api-config">
         <input type="text" id="apiBaseUrl" placeholder="请输入后台接口地址，如：http://localhost:8081/api/tool">
         <button id="saveApiUrl">保存地址</button>
@@ -175,7 +175,9 @@
 
 <div id="json" class="box panel">
     <textarea id="jsonInput" placeholder='输入JSON'></textarea>
-    <button onclick="fmtJson()">格式化</button>
+    <div>
+        <button onclick="fmtJson()">格式化</button>
+    </div>
     <div id="jsonResult" class="result">
         <button class="copy-btn" onclick="copy('jsonResult')">复制</button>
     </div>
@@ -183,7 +185,9 @@
 
 <div id="time" class="box panel" style="display:none;">
     <textarea id="tsInput" placeholder="输入时间戳"></textarea>
-    <button onclick="tsToDate()">转日期</button>
+    <div>
+        <button onclick="tsToDate()">转日期</button>
+    </div>
     <div id="tsResult" class="result">
         <button class="copy-btn" onclick="copy('tsResult')">复制</button>
     </div>
@@ -191,8 +195,10 @@
 
 <div id="url" class="box panel" style="display:none;">
     <textarea id="urlInput" placeholder="输入内容"></textarea>
-    <button onclick="urlEnc()">编码</button>
-    <button onclick="urlDec()">解码</button>
+    <div>
+        <button onclick="urlEnc()">编码</button>
+        <button onclick="urlDec()">解码</button>
+    </div>
     <div id="urlResult" class="result">
         <button class="copy-btn" onclick="copy('urlResult')">复制</button>
     </div>
@@ -200,8 +206,10 @@
 
 <div id="base64" class="box panel" style="display:none;">
     <textarea id="b64Input" placeholder="输入内容"></textarea>
-    <button onclick="b64Enc()">编码</button>
-    <button onclick="b64Dec()">解码</button>
+    <div>
+        <button onclick="b64Enc()">编码</button>
+        <button onclick="b64Dec()">解码</button>
+    </div>
     <div id="b64Result" class="result">
         <button class="copy-btn" onclick="copy('b64Result')">复制</button>
     </div>
@@ -209,14 +217,18 @@
 
 <div id="hash" class="box panel" style="display:none;">
     <textarea id="hashInput" placeholder="输入字符串"></textarea>
-    <button onclick="md5()">MD5</button>
+    <div>
+        <button onclick="md5()">MD5</button>
+    </div>
     <div id="hashResult" class="result">
         <button class="copy-btn" onclick="copy('hashResult')">复制</button>
     </div>
 </div>
 
 <div id="pwd" class="box panel" style="display:none;">
-    <button onclick="genPwd()">生成16位密码</button>
+    <div>
+        <button onclick="genPwd()">生成16位密码</button>
+    </div>
     <div id="pwdResult" class="result">
         <button class="copy-btn" onclick="copy('pwdResult')">复制</button>
     </div>
@@ -224,7 +236,7 @@
 
 <script>
     // 改造：全局接口地址变量，优先从本地存储读取，默认值备用
-    let apiBaseUrl = localStorage.getItem('apiBaseUrl') || "http://localhost:8081/api/tool";
+    let apiBaseUrl = localStorage.getItem('apiBaseUrl') || "http://localhost:8082/api/tool";
     let current = "json";
 
     // 页面加载时初始化输入框值
@@ -260,7 +272,7 @@
 
     function show(id) {
         document.querySelectorAll(".panel").forEach(p => p.style.display = "none");
-        document.getElementById(id).style.display = "block";
+        document.getElementById(id).style.display = "flex";
         current = id;
         document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
         document.querySelectorAll(".tab")[
