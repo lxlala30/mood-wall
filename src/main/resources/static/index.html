@@ -158,8 +158,8 @@
 <div class="header">
     <h1>开发者工具箱</h1>
     <div class="api-config">
-        <input type="text" id="apiBaseUrl" placeholder="请输入后台接口地址，如：http://localhost:8081/api/tool">
-        <button id="saveApiUrl">保存地址</button>
+<!--        <input type="text" id="apiBaseUrl" placeholder="请输入后台接口地址，如：http://localhost:8081/api/tool">-->
+<!--        <button id="saveApiUrl">保存地址</button>-->
         <button id="themeBtn">切换深色模式</button>
     </div>
 </div>
@@ -236,7 +236,7 @@
 
 <script>
     // 改造：全局接口地址变量，优先从本地存储读取，默认值备用
-    let apiBaseUrl = localStorage.getItem('apiBaseUrl') || "http://localhost:8082/api/tool";
+    let apiBaseUrl = localStorage.getItem('apiBaseUrl') || "http://118.25.94.106:8082/api/tool";
     let current = "json";
 
     // 页面加载时初始化输入框值
