@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品管理后台 | NoNo哥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            color: #222;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0071e3;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* 列表样式 */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .edit-btn {
+            background: #4cd964;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .status-tag {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .status-enabled {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-disabled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            th:nth-child(3), td:nth-child(3) {
+                display: none;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 class="title">作品管理后台</h1>
+        <a href="index.html" class="back-btn">← 返回作品展示页</a>
+    </div>
+
+    <!-- 新增/编辑项目表单 -->
+    <div class="card">
+        <h2 class="card-title">新增/编辑项目</h2>
+        <form id="project-form">
+            <input type="hidden" id="project-id">
+
+            <div class="form-group">
+                <label for="project-name">项目名称 <span style="color: red;">*</span></label>
+                <input type="text" id="project-name" required placeholder="如：CodeKit 工具箱">
+            </div>
+
+            <div class="form-group">
+                <label for="project-desc">项目描述 <span style="color: red;">*</span></label>
+                <textarea id="project-desc" required placeholder="简要描述项目功能和特点"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="project-tech">技术栈</label>
+                <input type="text" id="project-tech" placeholder="如：SpringBoot + 原生前端，多个用逗号分隔">
+            </div>
+
+            <div class="form-group">
+                <label for="project-url">项目展示地址</label>
+                <input type="url" id="project-url" placeholder="如：http://118.25.94.106:8082/tool.html">
+            </div>
+
+            <div class="form-group">
+                <label for="project-sort">排序权重</label>
+                <input type="number" id="project-sort" value="999" min="0" placeholder="数字越小越靠前">
+            </div>
+
+            <div class="form-group">
+                <label for="project-enabled">
+                    <input type="checkbox" id="project-enabled" checked> 启用展示（取消则不在前台显示）
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存项目</button>
+                <button type="button" class="btn btn-secondary" id="reset-form">重置表单</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 项目列表 -->
+    <div class="card">
+        <h2 class="card-title">项目列表</h2>
+        <div class="table-container">
+            <table id="project-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>项目名称</th>
+                    <th>技术栈</th>
+                    <th>排序</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="project-table-body">
+                <!-- 动态渲染项目列表 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 后端接口基础地址（根据实际部署地址修改）
+    // const baseUrl = 'http://118.25.94.106:8082';
+    const baseUrl = 'http://localhost:8082'; // 本地开发用
+
+    // 接口地址
+    const API = {
+        list: `${baseUrl}/api/projects/admin/list`,
+        save: `${baseUrl}/api/projects/admin/save`,
+        delete: `${baseUrl}/api/projects/admin/delete/`
+    };
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadProjectList();
+        bindFormEvents();
+    });
+
+    // 加载项目列表
+    async function loadProjectList() {
+        try {
+            const response = await fetch(API.list);
+            if (!response.ok) throw new Error('获取项目列表失败');
+
+            const projects = await response.json();
+            renderProjectTable(projects);
+        } catch (error) {
+            alert(`加载失败：${error.message}`);
+            console.error('加载项目列表出错：', error);
+        }
+    }
+
+    // 渲染项目表格
+    function renderProjectTable(projects) {
+        const tableBody = document.getElementById('project-table-body');
+        tableBody.innerHTML = '';
+
+        if (projects.length === 0) {
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #666;">暂无项目数据</td>
+                    </tr>
+                `;
+            return;
+        }
+
+        projects.forEach(project => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                    <td>${project.id || '-'}</td>
+                    <td>${escapeHtml(project.name)}</td>
+                    <td>${escapeHtml(project.techStack || '-')}</td>
+                    <td>${project.sortOrder || 999}</td>
+                    <td>
+                        <span class="status-tag ${project.enabled ? 'status-enabled' : 'status-disabled'}">
+                            ${project.enabled ? '已启用' : '已禁用'}
+                        </span>
+                    </td>
+                    <td class="action-btns">
+                        <button class="action-btn edit-btn" data-id="${project.id}">编辑</button>
+                        <button class="action-btn delete-btn" data-id="${project.id}">删除</button>
+                    </td>
+                `;
+            tableBody.appendChild(tr);
+
+            // 绑定编辑按钮事件
+            tr.querySelector('.edit-btn').addEventListener('click', () => {
+                fillFormWithProject(project);
+            });
+
+            // 绑定删除按钮事件
+            tr.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (confirm(`确定要删除项目【${project.name}】吗？`)) {
+                    await deleteProject(project.id);
+                }
+            });
+        });
+    }
+
+    // 绑定表单事件
+    function bindFormEvents() {
+        const form = document.getElementById('project-form');
+        const resetBtn = document.getElementById('reset-form');
+
+        // 表单提交
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveProject();
+        });
+
+        // 重置表单
+        resetBtn.addEventListener('click', () => {
+            resetForm();
+        });
+    }
+
+    // 填充表单数据（编辑时）
+    function fillFormWithProject(project) {
+        document.getElementById('project-id').value = project.id || '';
+        document.getElementById('project-name').value = project.name || '';
+        document.getElementById('project-desc').value = project.description || '';
+        document.getElementById('project-tech').value = project.techStack || '';
+        document.getElementById('project-url').value = project.projectUrl || '';
+        document.getElementById('project-sort').value = project.sortOrder || 999;
+        document.getElementById('project-enabled').checked = project.enabled !== false;
+    }
+
+    // 重置表单
+    function resetForm() {
+        document.getElementById('project-form').reset();
+        document.getElementById('project-id').value = '';
+        document.getElementById('project-sort').value = 999;
+        document.getElementById('project-enabled').checked = true;
+    }
+
+    // 保存项目（新增/编辑）
+    async function saveProject() {
+        try {
+            // 收集表单数据
+            const projectData = {
+                id: document.getElementById('project-id').value || null,
+                name: document.getElementById('project-name').value.trim(),
+                description: document.getElementById('project-desc').value.trim(),
+                techStack: document.getElementById('project-tech').value.trim(),
+                projectUrl: document.getElementById('project-url').value.trim(),
+                sortOrder: parseInt(document.getElementById('project-sort').value),
+                enabled: document.getElementById('project-enabled').checked
+            };
+
+            // 验证必填项
+            if (!projectData.name) {
+                alert('项目名称不能为空！');
+                return;
+            }
+            if (!projectData.description) {
+                alert('项目描述不能为空！');
+                return;
+            }
+
+            // 发送保存请求
+            const response = await fetch(API.save, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(projectData)
+            });
+
+            if (!response.ok) throw new Error('保存项目失败');
+
+            alert(projectData.id ? '项目编辑成功！' : '项目新增成功！');
+            resetForm(); // 重置表单
+            await loadProjectList(); // 重新加载列表
+        } catch (error) {
+            alert(`保存失败：${error.message}`);
+            console.error('保存项目出错：', error);
+        }
+    }
+
+    // 删除项目
+    async function deleteProject(projectId) {
+        if (!projectId) return;
+
+        try {
+            const response = await fetch(`${API.delete}${projectId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('删除项目失败');
+
+            alert('项目删除成功！');
+            await loadProjectList(); // 重新加载列表
+        } catch (error) {
+            alert(`删除失败：${error.message}`);
+            console.error('删除项目出错：', error);
+        }
+    }
+
+    // HTML 转义，防止XSS攻击
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+</script>
+</body>
+</html>

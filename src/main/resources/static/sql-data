@@ -1,0 +1,5 @@
+INSERT INTO project (name, description, tech_stack, project_url, sort_order, enabled)
+VALUES
+('CodeKit 工具箱', '一站式开发者工具箱，支持 JSON 格式化、编解码、加密、时间转换等功能。', 'SpringBoot + 原生前端', 'http://118.25.94.106:8082/tool.html', 1, 1),
+('MoodWall 心情打卡墙', '治愈系悬浮便签墙，可发布心情、选择颜色、带动画效果。', 'SpringBoot + 前端动画', 'http://118.25.94.106:8082/note_server.html', 2, 1),
+('个人作品集官网', '极简高级风个人展示站，响应式设计，适合简历与作品展示。', 'HTML + CSS + JS', 'http://118.25.94.106:8082/index.html', 3, 1);

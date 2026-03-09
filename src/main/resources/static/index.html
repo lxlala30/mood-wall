@@ -226,30 +226,8 @@
     <!-- 作品区域 -->
     <div class="section">
         <div class="section-title">我的作品</div>
-        <div class="projects">
-            <div class="card" id="codekit-card">
-                <div class="card-body">
-                    <div class="card-title">CodeKit 工具箱</div>
-                    <div class="card-desc">一站式开发者工具箱，支持 JSON 格式化、编解码、加密、时间转换等功能。</div>
-                    <div class="card-tech">SpringBoot + 原生前端</div>
-                </div>
-            </div>
-
-            <div class="card" id="moodwall-card">
-                <div class="card-body">
-                    <div class="card-title">MoodWall 心情打卡墙</div>
-                    <div class="card-desc">治愈系悬浮便签墙，可发布心情、选择颜色、带动画效果。</div>
-                    <div class="card-tech">SpringBoot + 前端动画</div>
-                </div>
-            </div>
-
-            <div class="card" id="nono-card">
-                <div class="card-body">
-                    <div class="card-title">个人作品集官网</div>
-                    <div class="card-desc">极简高级风个人展示站，响应式设计，适合简历与作品展示。</div>
-                    <div class="card-tech">HTML + CSS + JS</div>
-                </div>
-            </div>
+        <div class="projects" id="projects-container">
+            <!-- 这里由 JS 动态填充卡片 -->
         </div>
     </div>
 
@@ -259,8 +237,10 @@
 </div>
 
 <script>
-    let base = 'http://118.25.94.106:8082'
-    // let base = 'http://localhost:8082'
+    // 服务器地址
+    // let base = 'http://118.25.94.106:8082'
+    // 本地开发
+    let base = 'http://localhost:8082'
 // ========== 新增：初始化头像 头像上传核心逻辑 ==========
     const avatarContainer = document.querySelector('.avatar-container');
     const avatarImg = document.getElementById('avatar-img');
@@ -301,18 +281,7 @@
         };
         reader.readAsDataURL(file);
 
-        // ========== 后端对接预留（可选） ==========
-        // 若需要上传到服务器，可在这里添加 FormData 上传逻辑
         uploadImage(file);
-        // const formData = new FormData();
-        // formData.append('avatar', file);
-        // fetch('你的后端上传接口地址', {
-        //     method: 'POST',
-        //     body: formData
-        // }).then(res => res.json()).then(data => {
-        //     console.log('头像上传成功：', data);
-        //     // 可将后端返回的图片地址保存到数据库/本地存储
-        // });
     });
 
     // 上传图片到后端
@@ -367,22 +336,79 @@
         window.open(NONO_URL, '_blank');
     });
 
-    // 作品卡片跳转
-    const codekitCard = document.getElementById('codekit-card');
-    const moodwallCard = document.getElementById('moodwall-card');
-    const nonoCard = document.getElementById('nono-card');
+    // 项目列表接口地址
+    const PROJECT_LIST_URL = base + '/api/projects/list';
 
-    nonoCard.addEventListener('click', function() {
-        window.location.href = NONO_URL;
+    // 页面加载时拉取并渲染作品
+    window.addEventListener('DOMContentLoaded', async function() {
+        console.log("DOMContentLoaded ------ start")
+        await loadAndRenderProjects();
     });
 
-    codekitCard.addEventListener('click', function() {
-        window.location.href = TOOL_URL;
-    });
+    // 页面初始化
+    window.onload = function() {
+        // loadAndRenderProjects();
+    };
 
-    moodwallCard.addEventListener('click', function() {
-        window.location.href = NOTE_URL;
-    });
+    async function loadAndRenderProjects() {
+        try {
+            const res = await fetch(PROJECT_LIST_URL);
+            if (!res.ok) throw new Error('获取项目列表失败');
+            const projects = await res.json();
+            console.log("project size:{}", projects.length)
+            renderProjectCards(projects);
+        } catch (e) {
+            console.error('加载项目失败:', e);
+            document.getElementById('projects-container').innerHTML =
+                '<p style="color: #666;">加载项目失败，请检查网络或后端服务</p>';
+        }
+    }
+
+    // 解析自定义项目数据
+    function renderProjectCards(projects) {
+        const container = document.getElementById('projects-container');
+        container.innerHTML = ''; // 清空原有内容
+
+        if (!projects || projects.length === 0) {
+            container.innerHTML = '<p style="color: #666;">暂无作品展示</p>';
+            return;
+        }
+
+        projects.forEach(proj => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.url = proj.projectUrl; // 存储跳转地址
+
+            card.innerHTML = `
+            <div class="card-body">
+                <div class="card-title">${escapeHtml(proj.name)}</div>
+                <div class="card-desc">${escapeHtml(proj.description)}</div>
+                <div class="card-tech">${escapeHtml(proj.techStack)}</div>
+            </div>
+        `;
+
+            // 点击卡片跳转（如果有地址）
+            if (proj.projectUrl && proj.projectUrl.trim() !== '') {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => {
+                    window.open(proj.projectUrl, '_blank');
+                });
+            }
+
+            container.appendChild(card);
+        });
+    }
+
+    // 简单的 HTML 转义，防止 XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 </script>
 </body>
 </html>

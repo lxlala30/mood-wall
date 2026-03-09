@@ -52,6 +52,27 @@
             <version>5.8.23</version>
         </dependency>
 
+        <!-- MyBatis 核心依赖（替代 JPA） -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- SQLite 驱动 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.41.2.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 可选：简化数据返回 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>2.0.32</version>
+        </dependency>
         <!-- 必须添加：配置注解处理器（否则@ConfigurationProperties可能报错） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
