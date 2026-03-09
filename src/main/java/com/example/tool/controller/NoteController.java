@@ -104,6 +104,11 @@ public class NoteController {
         onlineUserManager.recordUserAccess(request);
 
         logger.info("delete() -> 待删除的便签id:{}", id);
+        noteList.forEach(note -> {
+            if (note.getId().equals(id)) {
+                logger.info("delete() -> 待删除的便签value:{}", note.getContent());
+            }
+        });
         noteList.removeIf(note -> note.getId().equals(id));
         logger.info("delete() -> 剩余便签数量:{}", noteList.size());
 
