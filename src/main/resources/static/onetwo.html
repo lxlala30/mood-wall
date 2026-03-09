@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoNo哥 | 作品展示</title>
+    <title>OneTwo宝 | 信息展示</title>
     <style>
         * {
             margin: 0;
@@ -192,10 +192,12 @@
         </div>
         <!-- ========== 头像区域结束 ========== -->
 
-        <div class="name">帅布</div>
-        <div class="title">Java 高级工程师 | 全栈爱好者</div>
+        <div class="name">一二</div>
+        <div class="title">高级会计师 | 吃饭爱好者</div>
         <div class="bio">
-            喜欢用代码解决实际问题，从后端接口到前端交互全过程，再到部署上线全流程，享受完整的创造过程。
+            喜欢用拳头解决实际问题，从吃饭到睡觉一直保持饥饿，享受美食带来的美好过程。
+            一二有着黑色实心的耳朵、白色小短手，戴着永久性黑蝴蝶领结，小脚脚是黑色的；
+            一二的名字源自“人生不如意之事十有八九，常想一二，不思八九”的寓意，倡导简单快乐的生活态度。
         </div>
     </div>
 
@@ -205,7 +207,7 @@
         <div class="skills">
             <div class="tag tag-clickable" id="toolbox-tag">CodeKit</div>
             <div class="tag tag-clickable" id="emoji-tag">MoodWall</div>
-            <div class="tag tag-clickable" id="nono-tag">OneTwo Card</div>
+            <div class="tag tag-clickable" id="nono-tag">NoNo Card</div>
         </div>
     </div>
 
@@ -213,19 +215,19 @@
     <div class="section">
         <div class="section-title">技能栈</div>
         <div class="skills">
-            <div class="tag">Java</div>
-            <div class="tag">SpringBoot</div>
-            <div class="tag">MySQL</div>
-            <div class="tag">HTML</div>
-            <div class="tag">CSS</div>
-            <div class="tag">JavaScript</div>
-            <div class="tag">Linux</div>
+            <div class="tag">吃</div>
+            <div class="tag">喝</div>
+            <div class="tag">玩</div>
+            <div class="tag">乐</div>
+            <div class="tag">睡</div>
+            <div class="tag">懒</div>
+            <div class="tag">上班</div>
         </div>
     </div>
 
     <!-- 作品区域 -->
     <div class="section">
-        <div class="section-title">我的作品</div>
+        <div class="section-title">布布的作品</div>
         <div class="projects">
             <div class="card" id="codekit-card">
                 <div class="card-body">
@@ -245,7 +247,7 @@
 
             <div class="card" id="nono-card">
                 <div class="card-body">
-                    <div class="card-title">个人作品集官网</div>
+                    <div class="card-title">个人作品集</div>
                     <div class="card-desc">极简高级风个人展示站，响应式设计，适合简历与作品展示。</div>
                     <div class="card-tech">HTML + CSS + JS</div>
                 </div>
@@ -254,7 +256,7 @@
     </div>
 
     <div class="footer">
-        © 2026 NoNo哥 | 用代码创造价值
+        © 2026 OneTwo宝 | 用布布创造价值
     </div>
 </div>
 
@@ -344,26 +346,24 @@
     // ========== 原有：页面跳转逻辑（完全保留） ==========
     const NOTE_URL = base + '/note_server.html';
     const TOOL_URL = base + '/index.html';
-    const NONO_URL = base +'/onetwo.html';
+    const NONO_URL = base +'/nono.html';
 
     // 工具箱标签跳转
     const toolboxTag = document.getElementById('toolbox-tag');
     toolboxTag.addEventListener('click', function() {
-        window.open(TOOL_URL, '_blank');
+        window.location.href = TOOL_URL;
     });
 
     // 表情打卡墙标签跳转
     const emojiTag = document.getElementById('emoji-tag');
     emojiTag.addEventListener('click', function() {
-        // window.location.href = NOTE_URL;
-        window.open(NOTE_URL, '_blank');
+        window.location.href = NOTE_URL;
     });
 
-    // 作品标签跳转
+    // nono标签跳转
     const nonoTag = document.getElementById('nono-tag');
     nonoTag.addEventListener('click', function() {
-        // window.location.href = NONO_URL;
-        window.open(NONO_URL, '_blank');
+        window.location.href = NONO_URL;
     });
 
     // 作品卡片跳转
@@ -372,15 +372,15 @@
     const nonoCard = document.getElementById('nono-card');
 
     nonoCard.addEventListener('click', function() {
-        window.location.href = NONO_URL;
+        window.open(NONO_URL, '_blank');
     });
 
     codekitCard.addEventListener('click', function() {
-        window.location.href = TOOL_URL;
+        window.open(NOTE_URL, '_blank');
     });
 
     moodwallCard.addEventListener('click', function() {
-        window.location.href = NOTE_URL;
+        window.open(NONO_URL, '_blank');
     });
 </script>
 </body>
