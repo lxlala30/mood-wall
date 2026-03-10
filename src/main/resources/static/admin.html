@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>作品管理后台 | NoNo哥</title>
+    <title>项目管理后台 | NoNo哥</title>
     <style>
         * {
             margin: 0;
@@ -191,6 +191,28 @@
             color: #c62828;
         }
 
+        /* 优化复选框组的对齐 */
+        .form-group.checkbox-group {
+            display: flex;
+            align-items: center; /* 垂直居中对齐 */
+            gap: 8px; /* 复选框和文字之间的间距 */
+            margin-bottom: 15px;
+        }
+
+        /* 取消原有 label 的块级显示和下边距 */
+        .form-group.checkbox-group label {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        /* 调整复选框的宽度，避免占满整行 */
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: auto; /* 取消 100% 宽度 */
+            margin: 0 10px 0 0; /* 清除默认边距 */
+        }
+
         /* 响应式适配 */
         @media (max-width: 768px) {
             .header {
@@ -212,8 +234,8 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1 class="title">作品管理后台</h1>
-        <a href="index.html" class="back-btn">← 返回作品展示页</a>
+        <h1 class="title">项目管理后台</h1>
+        <a href="index.html" class="back-btn">← 返回项目展示页</a>
     </div>
 
     <!-- 新增/编辑项目表单 -->
@@ -223,33 +245,33 @@
             <input type="hidden" id="project-id">
 
             <div class="form-group">
-                <label for="project-name">项目名称 <span style="color: red;">*</span></label>
+                <label for="project-name">项目名称: <span style="color: red;">*</span></label>
                 <input type="text" id="project-name" required placeholder="如：CodeKit 工具箱">
             </div>
 
             <div class="form-group">
-                <label for="project-desc">项目描述 <span style="color: red;">*</span></label>
+                <label for="project-desc">项目描述: <span style="color: red;">*</span></label>
                 <textarea id="project-desc" required placeholder="简要描述项目功能和特点"></textarea>
             </div>
 
             <div class="form-group">
-                <label for="project-tech">技术栈</label>
+                <label for="project-tech">技术栈:</label>
                 <input type="text" id="project-tech" placeholder="如：SpringBoot + 原生前端，多个用逗号分隔">
             </div>
 
             <div class="form-group">
-                <label for="project-url">项目展示地址</label>
+                <label for="project-url">项目展示地址:</label>
                 <input type="url" id="project-url" placeholder="如：http://118.25.94.106:8082/tool.html">
             </div>
 
             <div class="form-group">
-                <label for="project-sort">排序权重</label>
+                <label for="project-sort">排序权重:</label>
                 <input type="number" id="project-sort" value="999" min="0" placeholder="数字越小越靠前">
             </div>
 
-            <div class="form-group">
+            <div class="form-group checkbox-group">
                 <label for="project-enabled">
-                    <input type="checkbox" id="project-enabled" checked> 启用展示（取消则不在前台显示）
+                    <input type="checkbox" id="project-enabled" checked> 启用展示标记（取消则不显示）
                 </label>
             </div>
 
