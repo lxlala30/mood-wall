@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoNo哥 | 作品展示</title>
+    <title>用户信息 | 作品展示</title>
     <style>
         * {
             margin: 0;
@@ -77,11 +77,67 @@
         }
         /* ========== 头像样式结束 ========== */
 
+        /* ========== 新增：名称+下拉框样式 ========== */
+        .name-dropdown-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
         .name {
             font-size: 32px;
             font-weight: 600;
             margin-bottom: 8px;
         }
+
+        .name-dropdown-arrow {
+            font-size: 16px;
+            color: #666;
+            transition: transform 0.3s ease;
+        }
+
+        .name-dropdown-container.open .name-dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .name-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 150px;
+            z-index: 100;
+            display: none;
+        }
+
+        .name-dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item.active {
+            background: #0071e3;
+            color: white;
+        }
+        /* ========== 下拉框样式结束 ========== */
 
         .title {
             font-size: 18px;
@@ -177,49 +233,39 @@
         }
     </style>
 </head>
-
 <body>
 <div class="container">
     <div class="header">
-        <!-- ========== 核心修改：头像区域 HTML 结构 ========== -->
         <div class="avatar-container" title="点击更换头像">
-            <!-- 替换 src 为你的初始头像图片地址（本地/网络均可） -->
-            <img id="avatar-img" class="avatar" src="https://picsum.photos/200/200?random=1" alt="个人头像">
-            <!-- 悬停遮罩 -->
+            <img id="avatar-img" class="avatar" src="" alt="个人头像">
             <div class="avatar-mask">📷</div>
-            <!-- 隐藏的文件上传控件 -->
             <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/jpg,image/gif">
         </div>
-        <!-- ========== 头像区域结束 ========== -->
+        <!-- 名称+下拉框 -->
+        <div class="name-dropdown-container" id="name-dropdown">
+            <div class="name" id="profile-name">帅布</div>
+            <div class="name-dropdown-arrow">▼</div>
+            <div class="name-dropdown-menu" id="dropdown-menu">
+                <!-- 动态渲染用户选项 -->
+            </div>
+        </div>
+        <div class="title" id="profile-title"></div>
+        <div class="bio" id="profile-bio"></div>
+    </div>
 
-        <div class="name">帅布</div>
-        <div class="title">Java 高级工程师 | 全栈爱好者</div>
-        <div class="bio">
-            喜欢用代码解决实际问题，从后端接口到前端交互全过程，再到部署上线全流程，享受完整的创造过程。
+    <!-- 技能栈区域 -->
+    <div class="section">
+        <div class="section-title">技能栈</div>
+        <div class="skills" id="skills-container">
+            <!-- 动态渲染技能标签 -->
         </div>
     </div>
 
     <!-- 快速入口区域 -->
     <div class="section">
         <div class="section-title">快速入口</div>
-        <div class="skills">
-            <div class="tag tag-clickable" id="toolbox-tag">CodeKit</div>
-            <div class="tag tag-clickable" id="emoji-tag">MoodWall</div>
-            <div class="tag tag-clickable" id="nono-tag">OneTwo Card</div>
-        </div>
-    </div>
-
-    <!-- 技能栈区域 -->
-    <div class="section">
-        <div class="section-title">技能栈</div>
-        <div class="skills">
-            <div class="tag">Java</div>
-            <div class="tag">SpringBoot</div>
-            <div class="tag">MySQL</div>
-            <div class="tag">HTML</div>
-            <div class="tag">CSS</div>
-            <div class="tag">JavaScript</div>
-            <div class="tag">Linux</div>
+        <div class="skills" id="quick-links-container">
+            <!-- 动态渲染快速入口标签 -->
         </div>
     </div>
 
@@ -231,131 +277,192 @@
         </div>
     </div>
 
-    <div class="footer">
-        © 2026 NoNo哥 | 用代码创造价值
-    </div>
+    <div class="footer" id="footer-text"></div>
 </div>
 
 <script>
     // 服务器地址
-    let base = 'http://118.25.94.106:8082'
+    // let base = 'http://118.25.94.106:8082'
     // 本地开发
-    // let base = 'http://localhost:8082'
-// ========== 新增：初始化头像 头像上传核心逻辑 ==========
-    const avatarContainer = document.querySelector('.avatar-container');
-    const avatarImg = document.getElementById('avatar-img');
-    const avatarInput = document.getElementById('avatar-input');
-    // 页面加载时，立即从缓存读取并设置头像
-    avatarImg.src = getImageUrl();
-    function getImageUrl() {
-        return localStorage.getItem('image_url') || "http://118.25.94.106:8082/uploads/a9db6b44-efca-4aeb-a119-50c877103dfb.jpeg" || "https://picsum.photos/200/200?random=1";
-    }
-    // 1. 点击头像容器，触发文件选择框
-    avatarContainer.addEventListener('click', () => {
-        avatarInput.click();
-    });
+    let base = 'http://localhost:8082'
 
-    // 2. 选择文件后处理头像预览
-    avatarInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // 个人信息接口地址
+    const PROFILE_URL = base + '/api/profile/get';
+    // 全部用户信息接口地址
+    const USERS_URL = base + '/api/profile/all/get';
+    // 存储真实用户数据（不再 mock）
+    let allUsers = [];
 
-        // 校验文件格式
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-        if (!validTypes.includes(file.type)) {
-            alert('请上传 JPG/PNG/GIF 格式的图片！');
-            return;
-        }
-
-        // 校验文件大小（限制 2MB 以内）
-        const maxSize = 2 * 1024 * 1024; // 2MB
-        if (file.size > maxSize) {
-            alert('头像图片不能超过 2MB！');
-            return;
-        }
-
-        // 本地预览：将文件转为 Base64 格式
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            avatarImg.src = event.target.result; // 实时更新头像
-        };
-        reader.readAsDataURL(file);
-
-        uploadImage(file);
-    });
-
-    // 上传图片到后端
-    async function uploadImage(file) {
-        if (!file) return ""; // 无图片则返回空
-
-        const formData = new FormData();
-        formData.append('image', file);
-
-        try {
-            const res = await fetch(base + "/api/note/upload", {
-                method: "POST",
-                body: formData
-            });
-            const data = await res.json();
-            if (data.success) {
-                avatarImg.src = data.imageUrl;
-                localStorage.setItem('image_url', data.imageUrl);
-                // return data.imageUrl; // 返回图片URL
-            } else {
-                alert("图片上传失败：" + data.message);
-                return "";
-            }
-        } catch (e) {
-            alert("图片上传异常：" + e.message);
-            return "";
-        }
-    }
-
-    // ========== 原有：页面跳转逻辑（完全保留） ==========
-    const NOTE_URL = base + '/note_server.html';
-    const TOOL_URL = base + '/tool.html';
-    const NONO_URL = base +'/onetwo.html';
-
-    // 工具箱标签跳转
-    const toolboxTag = document.getElementById('toolbox-tag');
-    toolboxTag.addEventListener('click', function() {
-        window.open(TOOL_URL, '_blank');
-    });
-
-    // 表情打卡墙标签跳转
-    const emojiTag = document.getElementById('emoji-tag');
-    emojiTag.addEventListener('click', function() {
-        // window.location.href = NOTE_URL;
-        window.open(NOTE_URL, '_blank');
-    });
-
-    // 作品标签跳转
-    const nonoTag = document.getElementById('nono-tag');
-    nonoTag.addEventListener('click', function() {
-        // window.location.href = NONO_URL;
-        window.open(NONO_URL, '_blank');
-    });
-
-    // 项目列表接口地址
-    const PROJECT_LIST_URL = base + '/api/projects/list';
-
-    // 页面加载时拉取并渲染作品
+    // 页面加载时拉取真实用户数据
     window.addEventListener('DOMContentLoaded', async function() {
-        console.log("DOMContentLoaded ------ start")
+        try {
+            // 1. 先拉取所有用户列表
+            const usersRes = await fetch(USERS_URL);
+            if (!usersRes.ok) throw new Error('获取用户列表失败');
+            allUsers = await usersRes.json(); // 接口返回数组：[{id, name, title, ...}, ...]
+
+            if (!allUsers || allUsers.length === 0) {
+                throw new Error('用户列表为空');
+            }
+
+            // 2. 初始化下拉框（用真实用户数据）
+            initNameDropdown();
+            // 3. 默认加载第一个用户的完整信息
+            await loadAndRenderProfile(allUsers[0].id);
+        } catch (e) {
+            console.error('初始化用户数据失败:', e);
+            // 兜底：用第一个 mock 用户
+            allUsers = [
+                { id: 1, name: '帅布', title: 'Java 高级工程师 | 全栈爱好者' }
+            ];
+            initNameDropdown();
+            await loadAndRenderProfile(1);
+        }
         await loadAndRenderProjects();
     });
 
-    // 页面初始化
-    window.onload = function() {
-        // loadAndRenderProjects();
-    };
+    // 初始化名称下拉框
+    function initNameDropdown() {
+        const container = document.getElementById('name-dropdown');
+        const menu = document.getElementById('dropdown-menu');
+
+        // 渲染真实用户选项
+        renderUserOptions();
+
+        container.addEventListener('click', (e) => {
+            e.stopPropagation();
+            container.classList.toggle('open');
+            menu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            container.classList.remove('open');
+            menu.classList.remove('show');
+        });
+
+        // 点击选项时，拉取对应用户的完整信息
+        menu.addEventListener('click', async (e) => {
+            const item = e.target.closest('.dropdown-item');
+            if (!item) return;
+
+            const userId = item.dataset.id;
+            await loadAndRenderProfile(userId); // 拉取该用户完整信息
+            container.classList.remove('open');
+            menu.classList.remove('show');
+        });
+    }
+
+    // 渲染用户选项（从 allUsers 数组）
+    function renderUserOptions() {
+        const menu = document.getElementById('dropdown-menu');
+        menu.innerHTML = '';
+
+        if (!allUsers || allUsers.length === 0) {
+            menu.innerHTML = '<div class="dropdown-item">暂无用户</div>';
+            return;
+        }
+
+        const currentName = document.getElementById('profile-name').textContent;
+        allUsers.forEach(user => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.id = user.id;
+            item.textContent = user.name;
+
+            // 标记当前用户为 active
+            if (user.name === currentName) {
+                item.classList.add('active');
+            }
+            menu.appendChild(item);
+        });
+    }
+
+    // 加载指定用户的完整信息
+    async function loadAndRenderProfile(userId) {
+        try {
+            // 调用接口：GET /api/profile/get?id=xxx
+            const res = await fetch(`${PROFILE_URL}?id=${userId}`);
+            if (!res.ok) throw new Error(`获取用户 ${userId} 信息失败`);
+            const profile = await res.json();
+
+            renderProfileInfo(profile);
+            renderUserOptions(); // 刷新下拉框状态
+        } catch (e) {
+            console.error('加载用户信息失败:', e);
+            // 兜底显示当前用户
+            alert(`加载用户信息失败，已恢复默认展示`);
+        }
+    }
+
+    // 渲染个人信息到页面
+    function renderProfileInfo(profile) {
+        // 1. 头像
+        const avatarImg = document.getElementById('avatar-img');
+        avatarImg.src = localStorage.getItem('image_url') || profile.avatarUrl || "https://picsum.photos/200/200?random=1";
+
+        // 2. 姓名
+        document.getElementById('profile-name').textContent = profile.name || '帅布';
+
+        // 3. 职业/头衔
+        document.getElementById('profile-title').textContent = profile.title || 'Java 高级工程师 | 全栈爱好者';
+
+        // 4. 个人简介
+        document.getElementById('profile-bio').textContent = profile.bio || '喜欢用代码解决实际问题...';
+
+        // 5. 技能栈
+        const skillsContainer = document.getElementById('skills-container');
+        skillsContainer.innerHTML = '';
+        if (profile.skills) {
+            profile.skills.split(',').forEach(skill => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.textContent = skill.trim();
+                skillsContainer.appendChild(tag);
+            });
+        }
+
+        // 6. 快速入口
+        const quickLinksContainer = document.getElementById('quick-links-container');
+        quickLinksContainer.innerHTML = '';
+        if (profile.quickLinks) {
+            profile.quickLinks.split(',').forEach(link => {
+                const tag = document.createElement('div');
+                tag.className = 'tag tag-clickable';
+                tag.textContent = link.trim();
+                tag.id = `${link.trim().toLowerCase()}-tag`;
+                quickLinksContainer.appendChild(tag);
+            });
+            bindQuickLinkEvents();
+        }
+
+        // 7. 页脚文字
+        document.getElementById('footer-text').textContent = profile.footerText || '© 2026 NoNo哥 | 用代码创造价值';
+    }
+
+    // 绑定快速入口跳转事件
+    function bindQuickLinkEvents() {
+        const NOTE_URL = base + '/note_server.html';
+        const TOOL_URL = base + '/tool.html';
+        const NONO_URL = base + '/onetwo.html';
+
+        const toolboxTag = document.getElementById('codekit-tag');
+        if (toolboxTag) toolboxTag.addEventListener('click', () => window.open(TOOL_URL, '_blank'));
+
+        const emojiTag = document.getElementById('moodwall-tag');
+        if (emojiTag) emojiTag.addEventListener('click', () => window.open(NOTE_URL, '_blank'));
+
+        const nonoTag = document.getElementById('onetwo-card-tag');
+        if (nonoTag) nonoTag.addEventListener('click', () => window.open(NONO_URL, '_blank'));
+    }
+
+    // 项目列表接口地址
+    const PROJECT_LIST_URL = base + '/api/projects/list';
 
     async function loadAndRenderProjects() {
         try {
             const res = await fetch(PROJECT_LIST_URL);
             if (!res.ok) throw new Error('获取项目列表失败');
             const projects = await res.json();
-            console.log("project size:{}", projects.length)
             renderProjectCards(projects);
         } catch (e) {
             console.error('加载项目失败:', e);
@@ -364,10 +471,9 @@
         }
     }
 
-    // 解析自定义项目数据
     function renderProjectCards(projects) {
         const container = document.getElementById('projects-container');
-        container.innerHTML = ''; // 清空原有内容
+        container.innerHTML = '';
 
         if (!projects || projects.length === 0) {
             container.innerHTML = '<p style="color: #666;">暂无作品展示</p>';
@@ -377,7 +483,7 @@
         projects.forEach(proj => {
             const card = document.createElement('div');
             card.className = 'card';
-            card.dataset.url = proj.projectUrl; // 存储跳转地址
+            card.dataset.url = proj.projectUrl;
 
             card.innerHTML = `
             <div class="card-body">
@@ -387,7 +493,6 @@
             </div>
         `;
 
-            // 点击卡片跳转（如果有地址）
             if (proj.projectUrl && proj.projectUrl.trim() !== '') {
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', () => {
@@ -399,7 +504,6 @@
         });
     }
 
-    // 简单的 HTML 转义，防止 XSS
     function escapeHtml(str) {
         if (!str) return '';
         return str
@@ -408,6 +512,10 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    function getImageUrl() {
+        return localStorage.getItem('image_url') || "http://118.25.94.106:8082/uploads/a9db6b44-efca-4aeb-a119-50c877103dfb.jpeg" || "https://picsum.photos/200/200?random=1";
     }
 </script>
 </body>

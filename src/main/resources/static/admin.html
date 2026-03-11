@@ -54,6 +54,45 @@
             opacity: 0.9;
         }
 
+        /* ========== 新增 Tab 样式 ========== */
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-item {
+            padding: 10px 20px;
+            background: #eee;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active {
+            background: #0071e3;
+            color: white;
+        }
+
+        .tab-item:hover:not(.active) {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        /* ========== Tab 样式结束 ========== */
+
         .card {
             background: white;
             border-radius: 12px;
@@ -213,12 +252,71 @@
             margin: 0 10px 0 0; /* 清除默认边距 */
         }
 
+        /* ========== 新增：头像预览 + 上传样式 ========== */
+        .avatar-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+        }
+
+        .avatar-upload-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .avatar-upload-group input[type="url"] {
+            flex: 1;
+        }
+
+        .avatar-upload-btn {
+            padding: 10px 16px;
+            background: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .avatar-upload-btn:hover {
+            opacity: 0.9;
+        }
+
+        #avatar-upload-input {
+            display: none;
+        }
+        /* ========== 头像预览 + 上传样式结束 ========== */
+
         /* 响应式适配 */
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 1px;
+            }
+
+            .tab-item {
+                border-radius: 6px;
+                text-align: left;
             }
 
             th:nth-child(3), td:nth-child(3) {
@@ -234,99 +332,237 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1 class="title">项目管理后台</h1>
-        <a href="index.html" class="back-btn">← 返回项目展示页</a>
+        <h1 class="title">作品管理后台</h1>
+        <a href="index_v0.html" class="back-btn">← 返回作品展示页</a>
     </div>
 
-    <!-- 新增/编辑项目表单 -->
-    <div class="card">
-        <h2 class="card-title">新增/编辑项目</h2>
-        <form id="project-form">
-            <input type="hidden" id="project-id">
-
-            <div class="form-group">
-                <label for="project-name">项目名称: <span style="color: red;">*</span></label>
-                <input type="text" id="project-name" required placeholder="如：CodeKit 工具箱">
-            </div>
-
-            <div class="form-group">
-                <label for="project-desc">项目描述: <span style="color: red;">*</span></label>
-                <textarea id="project-desc" required placeholder="简要描述项目功能和特点"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="project-tech">技术栈:</label>
-                <input type="text" id="project-tech" placeholder="如：SpringBoot + 原生前端，多个用逗号分隔">
-            </div>
-
-            <div class="form-group">
-                <label for="project-url">项目展示地址:</label>
-                <input type="url" id="project-url" placeholder="如：http://118.25.94.106:8082/tool.html">
-            </div>
-
-            <div class="form-group">
-                <label for="project-sort">排序权重:</label>
-                <input type="number" id="project-sort" value="999" min="0" placeholder="数字越小越靠前">
-            </div>
-
-            <div class="form-group checkbox-group">
-                <label for="project-enabled">
-                    <input type="checkbox" id="project-enabled" checked> 启用展示标记（取消则不显示）
-                </label>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">保存项目</button>
-                <button type="button" class="btn btn-secondary" id="reset-form">重置表单</button>
-            </div>
-        </form>
+    <!-- ========== 新增 Tab 切换区域 ========== -->
+    <div class="tabs">
+        <button class="tab-item active" data-tab="project-tab">项目管理</button>
+        <button class="tab-item" data-tab="profile-tab">个人信息管理</button>
     </div>
 
-    <!-- 项目列表 -->
-    <div class="card">
-        <h2 class="card-title">项目列表</h2>
-        <div class="table-container">
-            <table id="project-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>项目名称</th>
-                    <th>技术栈</th>
-                    <th>排序</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody id="project-table-body">
-                <!-- 动态渲染项目列表 -->
-                </tbody>
-            </table>
+    <!-- 项目管理 Tab 内容（原有内容） -->
+    <div class="tab-content active" id="project-tab">
+        <!-- 新增/编辑项目表单 -->
+        <div class="card">
+            <h2 class="card-title">新增/编辑项目</h2>
+            <form id="project-form">
+                <input type="hidden" id="project-id">
+
+                <div class="form-group">
+                    <label for="project-name">项目名称: <span style="color: red;">*</span></label>
+                    <input type="text" id="project-name" required placeholder="如：CodeKit 工具箱">
+                </div>
+
+                <div class="form-group">
+                    <label for="project-desc">项目描述: <span style="color: red;">*</span></label>
+                    <textarea id="project-desc" required placeholder="简要描述项目功能和特点"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="project-tech">技术栈:</label>
+                    <input type="text" id="project-tech" placeholder="如：SpringBoot + 原生前端，多个用逗号分隔">
+                </div>
+
+                <div class="form-group">
+                    <label for="project-url">项目展示地址:</label>
+                    <input type="url" id="project-url" placeholder="如：http://118.25.94.106:8082/tool.html">
+                </div>
+
+                <div class="form-group">
+                    <label for="project-sort">排序权重:</label>
+                    <input type="number" id="project-sort" value="999" min="0" placeholder="数字越小越靠前">
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label for="project-enabled">
+                        <input type="checkbox" id="project-enabled" checked> 启用展示标记（取消则不显示）
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存项目</button>
+                    <button type="button" class="btn btn-secondary" id="reset-form">重置表单</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="card">
+            <h2 class="card-title">项目列表</h2>
+            <div class="table-container">
+                <table id="project-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>项目名称</th>
+                        <th>技术栈</th>
+                        <th>排序</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="project-table-body">
+                    <!-- 动态渲染项目列表 -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <!-- 个人信息管理 Tab 内容（新增） -->
+    <div class="tab-content" id="profile-tab">
+        <div class="card">
+            <h2 class="card-title">个人信息管理</h2>
+            <form id="profile-form">
+                <input type="hidden" id="profile-id" value="1"> <!-- 固定ID为1，因为只存一条 -->
+
+                <!-- 新增：头像预览区域 -->
+                <div class="avatar-preview-container">
+                    <img id="avatar-preview" class="avatar-preview" src="" alt="头像预览">
+                    <div>
+                        <p style="font-size: 14px; color: #666;">头像预览</p>
+                        <p style="font-size: 12px; color: #999;">上传后自动更新预览</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-name">姓名: <span style="color: red;">*</span></label>
+                    <input type="text" id="profile-name" required placeholder="如：帅布">
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-avatar">头像URL:</label>
+                    <div class="avatar-upload-group">
+                        <input type="url" id="profile-avatar" placeholder="如：http://118.25.94.106:8082/uploads/avatar.jpg">
+                        <button type="button" class="btn btn-primary" id="avatar-upload-btn">上传头像</button>
+                        <input type="file" id="avatar-upload-input" accept="image/png,image/jpeg,image/jpg,image/gif">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-title">职业/头衔: <span style="color: red;">*</span></label>
+                    <input type="text" id="profile-title" required placeholder="如：Java 高级工程师 | 全栈爱好者">
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-bio">个人简介: <span style="color: red;">*</span></label>
+                    <textarea id="profile-bio" required placeholder="描述你的技术理念和爱好"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-skills">技能栈（逗号分隔）:</label>
+                    <input type="text" id="profile-skills" placeholder="如：Java,SpringBoot,MySQL,HTML,CSS,JavaScript">
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-quick-links">快速入口（逗号分隔）:</label>
+                    <input type="text" id="profile-quick-links" placeholder="如：CodeKit,MoodWall,OneTwo Card">
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-footer">页脚文字:</label>
+                    <input type="text" id="profile-footer" placeholder="如：© 2026 NoNo哥 | 用代码创造价值">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存个人信息</button>
+                    <button type="button" class="btn btn-secondary" id="reset-profile-form">重置表单</button>
+                </div>
+            </form>
+        </div>
+
+
+
+        <!-- 新增：用户列表（和项目列表样式完全一致） -->
+        <div class="card">
+            <h2 class="card-title">用户列表</h2>
+            <div class="table-container">
+                <table id="profile-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>职业/头衔</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="profile-table-body">
+                    <!-- 动态渲染用户列表 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- ========== Tab 内容结束 ========== -->
 </div>
 
 <script>
     // 后端接口基础地址（根据实际部署地址修改）
-    const baseUrl = 'http://118.25.94.106:8082';
-    // const baseUrl = 'http://localhost:8082'; // 本地开发用
+    // const baseUrl = 'http://118.25.94.106:8082';
+    // 本地开发用
+    const baseUrl = 'http://localhost:8082';
 
-    // 接口地址
     const API = {
-        list: `${baseUrl}/api/projects/admin/list`,
-        save: `${baseUrl}/api/projects/admin/save`,
-        delete: `${baseUrl}/api/projects/admin/delete/`
+        // 项目管理接口
+        projectList: `${baseUrl}/api/projects/admin/list`,
+        projectSave: `${baseUrl}/api/projects/admin/save`,
+        projectDelete: `${baseUrl}/api/projects/admin/delete/`,
+        // 个人信息接口（新增多用户接口）
+        profileAllGet: `${baseUrl}/api/profile/all/get`, // 获取所有用户列表
+        profileGet: `${baseUrl}/api/profile/get`, // 获取单个用户信息（支持userId参数）
+        profileUpdate: `${baseUrl}/api/profile/admin/update`, // 新增/更新用户信息
+        profileDelete: `${baseUrl}/api/profile/admin/delete/` // 删除用户信息
     };
 
-    // 页面加载时初始化
+    // 头像上传接口
+    const AVATAR_UPLOAD_URL = baseUrl + '/api/note/upload';
+
+    // ========== 新增 Tab 切换逻辑 ==========
     document.addEventListener('DOMContentLoaded', async () => {
+        initTabs();
         await loadProjectList();
-        bindFormEvents();
+        bindProjectFormEvents();
+
+        // 初始化个人信息管理：先加载用户列表，再默认加载第一个用户
+        await loadProfileList();
+        bindProfileFormEvents();
+
+        initAvatarUpload(); // 初始化头像上传
+        const profiles = await fetch(API.profileAllGet).then(res => res.json());
+        if (profiles && profiles.length > 0) {
+            await loadProfileForm(profiles[0].id);
+        } else {
+            resetProfileForm();
+        }
     });
 
+    // Tab 切换初始化
+    function initTabs() {
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除所有 active 状态
+                tabItems.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // 给当前 Tab 添加 active 状态
+                item.classList.add('active');
+                const targetTab = item.getAttribute('data-tab');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+    }
+    // ========== Tab 切换逻辑结束 ==========
+
+    // ========== 原有项目管理逻辑（完整保留） ==========
     // 加载项目列表
     async function loadProjectList() {
         try {
-            const response = await fetch(API.list);
+            const response = await fetch(API.projectList);
             if (!response.ok) throw new Error('获取项目列表失败');
 
             const projects = await response.json();
@@ -384,8 +620,8 @@
         });
     }
 
-    // 绑定表单事件
-    function bindFormEvents() {
+    // 绑定项目表单事件
+    function bindProjectFormEvents() {
         const form = document.getElementById('project-form');
         const resetBtn = document.getElementById('reset-form');
 
@@ -397,11 +633,11 @@
 
         // 重置表单
         resetBtn.addEventListener('click', () => {
-            resetForm();
+            resetProjectForm();
         });
     }
 
-    // 填充表单数据（编辑时）
+    // 填充项目表单数据（编辑时）
     function fillFormWithProject(project) {
         document.getElementById('project-id').value = project.id || '';
         document.getElementById('project-name').value = project.name || '';
@@ -412,8 +648,8 @@
         document.getElementById('project-enabled').checked = project.enabled !== false;
     }
 
-    // 重置表单
-    function resetForm() {
+    // 重置项目表单
+    function resetProjectForm() {
         document.getElementById('project-form').reset();
         document.getElementById('project-id').value = '';
         document.getElementById('project-sort').value = 999;
@@ -445,7 +681,7 @@
             }
 
             // 发送保存请求
-            const response = await fetch(API.save, {
+            const response = await fetch(API.projectSave, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -456,7 +692,7 @@
             if (!response.ok) throw new Error('保存项目失败');
 
             alert(projectData.id ? '项目编辑成功！' : '项目新增成功！');
-            resetForm(); // 重置表单
+            resetProjectForm(); // 重置表单
             await loadProjectList(); // 重新加载列表
         } catch (error) {
             alert(`保存失败：${error.message}`);
@@ -469,7 +705,7 @@
         if (!projectId) return;
 
         try {
-            const response = await fetch(`${API.delete}${projectId}`, {
+            const response = await fetch(`${API.projectDelete}${projectId}`, {
                 method: 'DELETE'
             });
 
@@ -482,6 +718,229 @@
             console.error('删除项目出错：', error);
         }
     }
+    // ========== 项目管理逻辑结束 ==========
+
+    // ========== 新增个人信息管理逻辑 ==========
+    // 加载所有用户列表
+    async function loadProfileList() {
+        try {
+            const response = await fetch(API.profileAllGet);
+            if (!response.ok) throw new Error('获取用户列表失败');
+            const profiles = await response.json();
+            renderProfileTable(profiles);
+        } catch (error) {
+            alert(`加载用户列表失败：${error.message}`);
+            console.error('加载用户列表出错：', error);
+        }
+    }
+
+    // 渲染用户列表
+    function renderProfileTable(profiles) {
+        const tableBody = document.getElementById('profile-table-body');
+        tableBody.innerHTML = '';
+
+        if (!profiles || profiles.length === 0) {
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: #666;">暂无用户数据</td>
+            </tr>
+        `;
+            return;
+        }
+
+        profiles.forEach(profile => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${profile.id || '-'}</td>
+            <td>${escapeHtml(profile.name)}</td>
+            <td>${escapeHtml(profile.title)}</td>
+            <td class="action-btns">
+                <button class="action-btn edit-btn" data-id="${profile.id}">编辑</button>
+                <button class="action-btn delete-btn" data-id="${profile.id}">删除</button>
+            </td>
+        `;
+            tableBody.appendChild(tr);
+
+            // 绑定编辑按钮事件
+            tr.querySelector('.edit-btn').addEventListener('click', () => {
+                fillFormWithProfile(profile);
+            });
+
+            // 绑定删除按钮事件
+            tr.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (confirm(`确定要删除用户【${profile.name}】吗？`)) {
+                    await deleteProfile(profile.id);
+                }
+            });
+        });
+    }
+
+    // 填充用户表单数据（编辑时）
+    function fillFormWithProfile(profile) {
+        document.getElementById('profile-id').value = profile.id || '';
+        document.getElementById('profile-name').value = profile.name || '';
+        document.getElementById('profile-avatar').value = profile.avatarUrl || '';
+        document.getElementById('profile-title').value = profile.title || '';
+        document.getElementById('profile-bio').value = profile.bio || '';
+        document.getElementById('profile-skills').value = profile.skills || '';
+        document.getElementById('profile-quick-links').value = profile.quickLinks || '';
+        document.getElementById('profile-footer').value = profile.footerText || '';
+    }
+
+    // 删除用户
+    async function deleteProfile(profileId) {
+        if (!profileId) return;
+
+        try {
+            const response = await fetch(`${API.profileDelete}${profileId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('删除用户失败');
+
+            alert('用户删除成功！');
+            await loadProfileList(); // 重新加载列表
+            // 删除后默认加载第一个用户
+            const profiles = await fetch(API.profileAllGet).then(res => res.json());
+            if (profiles && profiles.length > 0) {
+                await loadProfileForm(profiles[0].id);
+            } else {
+                resetProfileForm();
+            }
+        } catch (error) {
+            alert(`删除失败：${error.message}`);
+            console.error('删除用户出错：', error);
+        }
+    }
+
+    // 加载个人信息到表单
+    async function loadProfileForm(userId) {
+        try {
+            const response = await fetch(`${API.profileGet}?id=${userId}`);
+            if (!response.ok) throw new Error('获取个人信息失败');
+
+            const profile = await response.json();
+            if (profile) {
+                document.getElementById('profile-name').value = profile.name || '';
+                document.getElementById('profile-avatar').value = profile.avatarUrl || '';
+                document.getElementById('profile-title').value = profile.title || '';
+                document.getElementById('profile-bio').value = profile.bio || '';
+                document.getElementById('profile-skills').value = profile.skills || '';
+                document.getElementById('profile-quick-links').value = profile.quickLinks || '';
+                document.getElementById('profile-footer').value = profile.footerText || '';
+            }
+        } catch (error) {
+            console.error('加载个人信息失败：', error);
+            // 加载失败时填充默认值
+            document.getElementById('profile-name').value = '帅布';
+            document.getElementById('profile-title').value = 'Java 高级工程师 | 全栈爱好者';
+            document.getElementById('profile-bio').value = '喜欢用代码解决实际问题，从后端接口到前端交互全过程，再到部署上线全流程，享受完整的创造过程。';
+            document.getElementById('profile-skills').value = 'Java,SpringBoot,MySQL,HTML,CSS,JavaScript,Linux';
+            document.getElementById('profile-quick-links').value = 'CodeKit,MoodWall,OneTwo Card';
+            document.getElementById('profile-footer').value = '© 2026 NoNo哥 | 用代码创造价值';
+        }
+    }
+
+    // 绑定个人信息表单事件
+    function bindProfileFormEvents() {
+        const form = document.getElementById('profile-form');
+        const resetBtn = document.getElementById('reset-profile-form');
+
+        // 表单提交
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveProfile();
+        });
+
+        // 重置表单
+        resetBtn.addEventListener('click', () => {
+            resetProfileForm();
+        });
+    }
+
+    async function saveProfile() {
+        try {
+            const profileId = document.getElementById('profile-id').value;
+            const profileData = {
+                id: profileId ? parseInt(profileId) : null,
+                name: document.getElementById('profile-name').value.trim(),
+                avatarUrl: document.getElementById('profile-avatar').value.trim(),
+                title: document.getElementById('profile-title').value.trim(),
+                bio: document.getElementById('profile-bio').value.trim(),
+                skills: document.getElementById('profile-skills').value.trim(),
+                quickLinks: document.getElementById('profile-quick-links').value.trim(),
+                footerText: document.getElementById('profile-footer').value.trim()
+            };
+
+            // 验证必填项
+            if (!profileData.name) { alert('姓名不能为空！'); return; }
+            if (!profileData.title) { alert('职业/头衔不能为空！'); return; }
+            if (!profileData.bio) { alert('个人简介不能为空！'); return; }
+
+            const response = await fetch(API.profileUpdate, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profileData)
+            });
+
+            if (!response.ok) throw new Error('保存个人信息失败');
+
+            alert(profileId ? '用户信息编辑成功！' : '新增用户成功！');
+            resetProfileForm();
+            await loadProfileList(); // 刷新用户列表
+        } catch (error) {
+            alert(`保存失败：${error.message}`);
+            console.error('保存个人信息出错：', error);
+        }
+    }
+
+    // 重置个人信息表单
+    function resetProfileForm() {
+        document.getElementById('profile-form').reset();
+        // 重置后重新加载原始数据
+        loadProfileForm(allUsers[0].id);
+    }
+    // ========== 个人信息管理逻辑结束 ==========
+
+    // ========== 头像上传 + 预览逻辑 ==========
+    function initAvatarUpload() {
+        const uploadBtn = document.getElementById('avatar-upload-btn');
+        const fileInput = document.getElementById('avatar-upload-input');
+        const avatarInput = document.getElementById('profile-avatar');
+
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) { alert('请上传 JPG/PNG/GIF 格式的图片！'); return; }
+            if (file.size > 2 * 1024 * 1024) { alert('头像图片不能超过 2MB！'); return; }
+
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                const res = await fetch(AVATAR_UPLOAD_URL, { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('上传失败');
+                const data = await res.json();
+                if (data.success) {
+                    avatarInput.value = data.imageUrl;
+                    updateAvatarPreview();
+                    alert('头像上传成功！URL 已自动填充');
+                } else throw new Error(data.message || '上传失败');
+            } catch (err) {
+                alert(`上传失败：${err.message}`);
+                console.error(err);
+            }
+        });
+    }
+
+    function updateAvatarPreview() {
+        const avatarUrl = document.getElementById('profile-avatar').value;
+        const previewImg = document.getElementById('avatar-preview');
+        previewImg.src = avatarUrl || 'https://picsum.photos/200/200?random=1';
+    }
+    // ========== 头像上传 + 预览逻辑结束 ==========
 
     // HTML 转义，防止XSS攻击
     function escapeHtml(str) {

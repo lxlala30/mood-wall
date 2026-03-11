@@ -29,9 +29,9 @@ public class IndexController {
      */
     @GetMapping("/")
     public String redirectToPath() {
-        // 方式 2：重定向（地址栏会显示 /index.html）
-//        String path = "redirect:/index.html";
-        String path = "forward:/index.html";
+        // 方式 2：重定向（地址栏会显示 /index_v0.html）
+//        String path = "redirect:/index_v0.html";
+        String path = "forward:/index_v0.html";
         logger.info("redirectToIndex() -> path:{}", path);
         return path;
     }
