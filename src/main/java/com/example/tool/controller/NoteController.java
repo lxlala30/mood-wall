@@ -1,11 +1,17 @@
 package com.example.tool.controller;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.json.JSONUtil;
 import com.example.tool.dto.Note;
+import com.example.tool.util.FileMd5Util;
 import com.example.tool.util.NotePersistenceUtil;
 import com.example.tool.util.OnlineUserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
@@ -30,8 +37,14 @@ public class NoteController {
     private final AtomicInteger idGen = new AtomicInteger(1);
     // 注入在线用户管理器
     private final OnlineUserManager onlineUserManager;
-
+    // 便签数据文件持久化工具类
     private final NotePersistenceUtil persistenceUtil;
+
+    // ========== 新增：图片MD5映射（内存+文件持久化） ==========
+    // 内存中存储：MD5 -> 图片URL（线程安全）
+    private final Map<String, String> imageMd5Map = new ConcurrentHashMap<>();
+    // MD5映射文件路径（和便签数据同目录）
+    private String md5MapFilePath;
 
     public NoteController(OnlineUserManager onlineUserManager, NotePersistenceUtil persistenceUtil) {
         this.onlineUserManager = onlineUserManager;
@@ -64,6 +77,39 @@ public class NoteController {
             // 保存默认便签到文件
             persistenceUtil.saveNotes(noteList);
             logger.info("init() -> 初始化默认便签");
+        }
+        // 初始化MD5映射
+        initImageMd5Map();
+    }
+
+    // ========== 新增：初始化MD5映射（从文件加载） ==========
+    public void initImageMd5Map() {
+        // 初始化MD5映射文件路径（存储在便签数据目录下）
+        md5MapFilePath = persistenceUtil.getDir() + "/image_md5_map.json";
+        File md5File = new File(md5MapFilePath);
+
+        logger.info("initImageMd5Map() -> path:{}", md5MapFilePath);
+
+        // 如果文件存在，加载已有的MD5映射
+        if (md5File.exists()) {
+            try {
+                String jsonStr = FileReader.create(md5File).readString();
+                Map<String, String> savedMap = JSONUtil.toBean(jsonStr, Map.class);
+                imageMd5Map.putAll(savedMap);
+                logger.info("initImageMd5Map() -> 加载 {} 个已上传图片的MD5映射", imageMd5Map.size());
+            } catch (Exception e) {
+                logger.error("加载图片MD5映射失败", e);
+            }
+        }
+    }
+
+    // ========== 新增：保存MD5映射到文件（持久化） ==========
+    private void saveImageMd5Map() {
+        try {
+            String jsonStr = JSONUtil.toJsonPrettyStr(imageMd5Map);
+            FileWriter.create(new File(md5MapFilePath)).write(jsonStr);
+        } catch (Exception e) {
+            logger.error("保存图片MD5映射失败", e);
         }
     }
 
@@ -152,15 +198,13 @@ public class NoteController {
         return result;
     }
 
-    /**
-     * 图片上传接口
-     */
+    // ========== 改造后的上传接口 ==========
     @PostMapping("/upload")
     public Map<String, Object> uploadImage(@RequestParam("image") MultipartFile file, HttpServletRequest request) {
         onlineUserManager.recordUserAccess(request);
         Map<String, Object> result = new HashMap<>();
 
-        // 1. 校验文件
+        // 1. 基础校验
         if (file.isEmpty()) {
             result.put("success", false);
             result.put("message", "上传文件为空");
@@ -168,32 +212,56 @@ public class NoteController {
         }
 
         try {
-            // 2. 定义上传目录（项目根目录下的 uploads 文件夹）
-            String uploadDir = System.getProperty("user.dir") + "/uploads/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs(); // 创建目录
+            // 2. 计算文件MD5（核心：唯一标识文件内容）
+            String fileMd5 = FileMd5Util.getFileMd5(file);
+            logger.info("uploadImage() -> 待上传文件MD5：{}", fileMd5);
+
+            // 3. 校验是否已存在（MD5已在映射中）
+            if (imageMd5Map.containsKey(fileMd5)) {
+                String existUrl = imageMd5Map.get(fileMd5);
+                result.put("success", true);
+                result.put("imageUrl", existUrl);
+                result.put("message", "图片已存在，无需重复上传");
+                result.put("isDuplicate", true); // 标记为重复文件
+                logger.info("uploadImage() -> 图片已存在，URL：{}", existUrl);
+                return result;
             }
 
-            // 3. 生成唯一文件名（避免重复）
+            // 4. 定义上传目录（改为配置化路径，避免硬编码）
+            String uploadDir = persistenceUtil.getDir() + "uploads/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs(); // 创建目录（自动创建多级）
+            }
+
+            // 5. 生成唯一文件名
             String originalFilename = file.getOriginalFilename();
             String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFileName = UUID.randomUUID().toString() + suffix;
 
-            // 4. 保存文件
+            // 6. 保存文件
             File destFile = new File(uploadDir + newFileName);
             file.transferTo(destFile);
 
-            // 5. 构建图片访问URL（适配本地/服务器环境）
-            String serverIp = request.getServerName();
+            // 7. 构建访问URL（适配服务器IP）
+            // 优先用服务器公网IP（避免localhost/127.0.0.1）
+            String serverIp = request.getHeader("X-Real-IP");
+            if (serverIp == null || serverIp.isEmpty() || "unknown".equalsIgnoreCase(serverIp)) {
+                serverIp = request.getServerName();
+            }
             int port = request.getServerPort();
-            String imageUrl = String.format("http://%s:%d/uploads/%s", serverIp, port, newFileName);
+            String imageUrl = String.format("http://%s:%d/api/note/uploads/%s", serverIp, port, newFileName);
 
-            // 6. 返回结果
+            // 8. 记录MD5映射（内存+文件持久化）
+            imageMd5Map.put(fileMd5, imageUrl);
+            saveImageMd5Map(); // 保存到文件，重启不丢失
+
+            // 9. 返回结果
             result.put("success", true);
             result.put("imageUrl", imageUrl);
             result.put("message", "上传成功");
-            logger.info("uploadImage() -> 图片上传成功，URL:{}", imageUrl);
+            result.put("isDuplicate", false); // 标记为新文件
+            logger.info("uploadImage() -> 图片上传成功，URL：{}", imageUrl);
             return result;
 
         } catch (Exception e) {
@@ -203,4 +271,49 @@ public class NoteController {
             return result;
         }
     }
+
+    // ========== 新增：暴露上传文件访问接口（必须！否则前端无法访问图片） ==========
+    @GetMapping("/uploads/{fileName}")
+    public void getUploadedImage(@PathVariable String fileName, HttpServletRequest request,
+                                 javax.servlet.http.HttpServletResponse response) {
+        onlineUserManager.recordUserAccess(request);
+        try {
+            // 读取文件
+            String uploadDir = persistenceUtil.getDir() + "uploads/";
+            File file = new File(uploadDir + fileName);
+            if (!file.exists()) {
+                response.setStatus(404);
+                response.getWriter().write("图片不存在");
+                return;
+            }
+
+            // 响应图片（自动识别类型）
+            FileUtil.writeToStream(file, response.getOutputStream());
+            response.setContentType(FileUtil.getMimeType(file.getPath()));
+        } catch (Exception e) {
+            logger.error("获取上传图片失败", e);
+            response.setStatus(500);
+        }
+    }
+
+    // 每天凌晨2点执行 新增定时任务，删除 MD5 映射中不存在的文件（防止手动删除文件后映射残留）
+    @Scheduled(cron = "0 0 2 * * ?")
+    public void cleanInvalidImages() {
+        String uploadDir = persistenceUtil.getDir() + "uploads/";
+        File dir = new File(uploadDir);
+        if (!dir.exists()) return;
+
+        File[] files = dir.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            // 计算文件MD5，判断是否在映射中
+            String fileMd5 = FileMd5Util.getFileMd5(file);
+            if (!imageMd5Map.containsKey(fileMd5)) {
+                FileUtil.del(file); // 删除无映射的文件
+                logger.info("cleanInvalidImages() -> 删除无效图片：{}", file.getName());
+            }
+        }
+    }
+
 }

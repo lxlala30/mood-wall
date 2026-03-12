@@ -55,6 +55,10 @@ public class NotePersistenceUtil {
         }
     }
 
+    public String getDir() {
+        return persistenceProperties.getDir();
+    }
+
     /**
      * 从文件加载便签列表
      */

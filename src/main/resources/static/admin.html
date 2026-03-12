@@ -252,6 +252,13 @@
             margin: 0 10px 0 0; /* 清除默认边距 */
         }
 
+        /* 新增：禁用状态样式 */
+        #profile-avatar:read-only {
+            background-color: #f0f0f0;
+            color: #888;
+            cursor: not-allowed;
+        }
+
         /* ========== 新增：头像预览 + 上传样式 ========== */
         .avatar-preview-container {
             display: flex;
@@ -435,7 +442,8 @@
                 <div class="form-group">
                     <label for="profile-avatar">头像URL:</label>
                     <div class="avatar-upload-group">
-                        <input type="url" id="profile-avatar" placeholder="如：http://118.25.94.106:8082/uploads/avatar.jpg">
+                        <!-- 只读输入框 -->
+                        <input type="url" id="profile-avatar" readonly placeholder="上传头像后自动填充">
                         <button type="button" class="btn btn-primary" id="avatar-upload-btn">上传头像</button>
                         <input type="file" id="avatar-upload-input" accept="image/png,image/jpeg,image/jpg,image/gif">
                     </div>
@@ -518,6 +526,8 @@
 
     // 头像上传接口
     const AVATAR_UPLOAD_URL = baseUrl + '/api/note/upload';
+    // 存储真实用户数据（不再 mock）
+    let allUsers = [];
 
     // ========== 新增 Tab 切换逻辑 ==========
     document.addEventListener('DOMContentLoaded', async () => {
@@ -727,6 +737,11 @@
             const response = await fetch(API.profileAllGet);
             if (!response.ok) throw new Error('获取用户列表失败');
             const profiles = await response.json();
+
+            allUsers = profiles; // 接口返回数组：[{id, name, title, ...}, ...]
+            if (!allUsers || allUsers.length === 0) {
+                throw new Error('用户列表为空');
+            }
             renderProfileTable(profiles);
         } catch (error) {
             alert(`加载用户列表失败：${error.message}`);
@@ -828,6 +843,7 @@
                 document.getElementById('profile-skills').value = profile.skills || '';
                 document.getElementById('profile-quick-links').value = profile.quickLinks || '';
                 document.getElementById('profile-footer').value = profile.footerText || '';
+                updateAvatarPreview();
             }
         } catch (error) {
             console.error('加载个人信息失败：', error);
@@ -838,6 +854,7 @@
             document.getElementById('profile-skills').value = 'Java,SpringBoot,MySQL,HTML,CSS,JavaScript,Linux';
             document.getElementById('profile-quick-links').value = 'CodeKit,MoodWall,OneTwo Card';
             document.getElementById('profile-footer').value = '© 2026 NoNo哥 | 用代码创造价值';
+            updateAvatarPreview();
         }
     }
 
@@ -854,7 +871,7 @@
 
         // 重置表单
         resetBtn.addEventListener('click', () => {
-            resetProfileForm();
+            document.getElementById('profile-form').reset();
         });
     }
 
@@ -935,6 +952,7 @@
         });
     }
 
+    // 更新预览
     function updateAvatarPreview() {
         const avatarUrl = document.getElementById('profile-avatar').value;
         const previewImg = document.getElementById('avatar-preview');
