@@ -29,7 +29,7 @@ public class IndexController {
      */
     @GetMapping("/nono")
     public String redirectToNoNo() {
-        String path = "redirect:/nono.html";
+        String path = "forward:/nono.html";
         logger.info("redirectToNoNo() -> path:{}", path);
         return path;
     }
@@ -51,7 +51,13 @@ public class IndexController {
      */
     @GetMapping("/note")
     public String redirectToNote() {
-        String path = "redirect:/note_admin.html";
+        String path = "forward:/note_server.html";
+        logger.info("redirectToNote() -> path:{}", path);
+        return path;
+    }
+    @GetMapping("/note_admin1")
+    public String redirectToNoteAdmin() {
+        String path = "forward:/note_admin.html";
         logger.info("redirectToNote() -> path:{}", path);
         return path;
     }
