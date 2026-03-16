@@ -25,14 +25,44 @@ public class IndexController {
     }
 
     /**
+     * 根路径 "/" 重定向到 nono.html
+     */
+    @GetMapping("/nono")
+    public String redirectToNoNo() {
+        String path = "redirect:/nono.html";
+        logger.info("redirectToNoNo() -> path:{}", path);
+        return path;
+    }
+
+    /**
      * 根路径 "/" 重定向到 tool_server.html
      */
     @GetMapping("/")
     public String redirectToPath() {
         // 方式 2：重定向（地址栏会显示 /index_v0.html）
 //        String path = "redirect:/index_v0.html";
-        String path = "forward:/index_v0.html";
-        logger.info("redirectToIndex() -> path:{}", path);
+        String path = "forward:/index.html";
+        logger.info("redirectToPath() -> path:{}", path);
+        return path;
+    }
+
+    /**
+     * 根路径 "/" 重定向到 note.html
+     */
+    @GetMapping("/note")
+    public String redirectToNote() {
+        String path = "redirect:/note_admin.html";
+        logger.info("redirectToNote() -> path:{}", path);
+        return path;
+    }
+
+    /**
+     * 根路径 "/" 重定向到 tool.html
+     */
+    @GetMapping("/tool")
+    public String redirectToTool() {
+        String path = "redirect:/tool.html";
+        logger.info("redirectToTool() -> path:{}", path);
         return path;
     }
 }
